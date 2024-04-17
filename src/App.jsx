@@ -4,18 +4,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { login } from './features/user/userSlice';
 import { Button, Container, Typography } from '@mui/material';
 import Navbar from './components/Navbar';
-import theme from './theme';
-
+import { useTheme, useMediaQuery } from '@mui/material';
+import { RouterProvider } from 'react-router-dom';
+import  Router  from './router';
 export default function App() {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   return (
     <>
-    <Navbar/>
-    <Container maxWidth={false} sx={{background: theme.palette.gradientBackground.primary, height: '91vh'}}>
-      <Button  onClick={()=>dispatch(login({username: 'Sarah'}))}>Click</Button>
-      {user && <Typography>{user.username}</Typography>}
-    </Container>
+    
+    <RouterProvider router={Router}  />
     </>
   )
 }
