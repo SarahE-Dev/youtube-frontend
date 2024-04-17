@@ -14,8 +14,8 @@ export default function Navbar() {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   return (
-    <AppBar sx={{backgroundColor: theme.palette.navBackground.primary}} position='fixed'>
-        <Toolbar>
+    <AppBar sx={{backgroundColor: theme.palette.navBackground.primary, zIndex: 2000}} position='fixed'>
+        <Toolbar sx={{pl: {sm: '200px'}}}>
             {isSmallScreen && <IconButton edge='start' color='inherit'
             aria-label='menu' sx={{mr: 2}}
             ><Menu/></IconButton>}
