@@ -1,10 +1,10 @@
 import React from 'react'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
-import { useMediaQuery } from '@mui/material'
+import { Typography, useMediaQuery } from '@mui/material'
 
 export default function Layout({children}) {
-    const isSmallScreen = useMediaQuery(theme=>theme.breakpoints.down('sm'))
+    const isSmallScreen = useMediaQuery(theme=>theme.breakpoints.down('md'))
   return (
     <>
     {!isSmallScreen && <Sidebar />}

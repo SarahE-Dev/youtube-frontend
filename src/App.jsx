@@ -11,7 +11,7 @@ export default function App() {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
   return (
     <>
     

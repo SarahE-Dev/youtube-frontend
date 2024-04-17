@@ -10,7 +10,7 @@ export default function Sidebar() {
         style: {
             width: '200px',
             backgroundColor: theme.palette.navBackground.primary,
-            paddingTop: '10vh',
+            paddingTop: '80px',
             
         }
     }}
