@@ -3,9 +3,11 @@ import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
 import { AccountCircleOutlined, Menu, MoreVert, SearchOutlined } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
+import axios from 'axios'
+import jsonpAdapter from 'axios-jsonp'
 
 
-
+const API_KEY = 'AIzaSyAbljffNiIMjezsRVe2YMEPCOVUiwwykY0'
 
 
 export default function Navbar() {
@@ -13,9 +15,41 @@ export default function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [options, setOptions] = useState([])
     const theme = useTheme();
+    const [searchInput, setSearchInput] = useState('')
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const suggest = async(term) =>{
+        const response = await axios(`https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=us&ds=yt&q=${term}`, {
+            mode: 'no-cors',
+            method: 'GET',
+            adapter: jsonpAdapter
+        })
+        
+        console.log(response);
+        setOptions(response.data[1].map(item=>item[0]))
+    }
+    
     const toggleDrawer = ()=>setIsDrawerOpen(!isDrawerOpen)
+    const handleInputChange =async(input, e) => {
+        console.log(e);
+        setSearchInput(input)
+        suggest(input)
+        
+        
+        
+    }
+    
+    const handleSearchSubmit = (e)=>{
+        e.preventDefault()
+        console.log(searchInput);
+        // fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&part=snippet&type=video&q=${searchInput}&maxResults=20&strictSearch=true&regionCode=US&relevanceLanguage=en`)
+        // .then(res=>res.json())
+        // .then(data=>{
+        //     console.log(data);
+        //     setSearchInput('')
+        // })
+        setSearchInput('')
+    }
   return (
     <>
     <AppBar sx={{backgroundColor: theme.palette.navBackground.primary, zIndex: 2000}} position='fixed'>
@@ -28,15 +62,24 @@ export default function Navbar() {
             aria-label='menu' sx={{mr: 2}}
             ><Menu/></IconButton>}
             <Box sx={{flexGrow: 1, display: 'flex', justifyContent: 'center', }}>
-                <Autocomplete size='small'
+            <form style={{width: '90%', maxWidth: 500}} onSubmit={handleSearchSubmit}>
+                <Autocomplete 
+                
+                 size='small'
                 options={options}
-                sx={{width: '90%', maxWidth: 500}}
+                onSelect={(e)=>handleInputChange(e.target.value, e)}
+                getOptionLabel={(option)=>option}
                 renderInput={(params)=>(
-                    <TextField  color='secondary' {...params}
+                    
+                    <TextField color='secondary' {...params}
+                    value={searchInput}
+                    onChange={(e)=>handleInputChange(e.target.value, e)}
                     sx={{mt: 1, mb: 1}}
                     label={<SearchOutlined/>} variant='outlined' />
+                    
                 )}
                 />
+                </form>
             </Box>
             
             {user && 
@@ -91,4 +134,4 @@ export default function Navbar() {
 }
     </>
   )
-}
+    }
