@@ -7,7 +7,7 @@ import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
 
 
-const API_KEY = 'AIzaSyAbljffNiIMjezsRVe2YMEPCOVUiwwykY0'
+const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
 
 export default function Navbar() {
