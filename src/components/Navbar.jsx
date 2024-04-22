@@ -2,39 +2,78 @@ import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, Menu
 import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
 import { AccountCircleOutlined, Menu, MoreVert, SearchOutlined } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
+import { setVideos } from '../features/video/videoSlice';
 
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
+const sampleVideoResponse = {
+    etag: 'PHfTdfpGdUAfXu4xjOs00aDmdL4',
+    id: {
+        kind: 'youtube#video',
+        videoId: 'PZt1vnxonJk'
+    },
+    kind: 'youtube#searchResult',
+    snippet: {
+        channelId: 'UCdC0An4ZPNr_YiFiYoVbwaw',
+        channelTitle: 'Daily Dose Of Internet',
+        description: 'Hello everyone, this is YOUR Daily Dose',
+        liveBroadcastContent: 'none',
+        publishedAt: '2023-12-17T20:13:36Z',
+        publishedTime: '2023-12-17T20:13:36Z',
+        thumbnails: {
+            default: {
+                height: 90,
+                url: "https://i.ytimg.com/vi/PZt1vnxonJk/default.jpg"
+                ,
+                width: 120
+            },
+            high: {
+                height: 360,
+                url: "https://i.ytimg.com/vi/PZt1vnxonJk/hqdefault.jpg",
+                width: 480
+            },
+            medium: {
+                height: 180,
+                url: "https://i.ytimg.com/vi/PZt1vnxonJk/mqdefault.jpg",
+                width: 320
+            }
+        },
+        title: "The Best Of The Internet (2023)"
+    }
+}
+
 
 export default function Navbar() {
     const user = useSelector(state=>state.user.user)
     const [anchorEl, setAnchorEl] = useState(null);
+    const dispatch = useDispatch()
     const [options, setOptions] = useState([])
     const theme = useTheme();
     const [searchInput, setSearchInput] = useState('')
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-    const [loadingText, setLoadingText] = useState(false)
+    const [loading, setLoading] = useState(false)
     const suggest = async(term) =>{
-        setLoadingText(true)
+        
         const response = await axios(`https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=us&ds=yt&q=${term}`, {
             mode: 'no-cors',
             method: 'GET',
             adapter: jsonpAdapter,
         })
-        setLoadingText(false)
-        console.log(response);
+        setLoading(false)
         setOptions(response.data[1].map(item=>item[0]))
+        
         
     }
     
     const toggleDrawer = ()=>setIsDrawerOpen(!isDrawerOpen)
     const handleInputChange =async(input) => {
+        setLoading(true)
         setSearchInput(input)
         suggest(input)
         console.log(searchInput);
@@ -42,15 +81,24 @@ export default function Navbar() {
     
     const handleSearchSubmit = async(e)=>{
         e.preventDefault()
-        console.log(searchInput);
-        setSearchInput('')
-        setOptions([])
-        // fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&part=snippet&type=video&q=${searchInput}&maxResults=20&strictSearch=true&regionCode=US&relevanceLanguage=en`)
-        // .then(res=>res.json())
-        // .then(data=>{
-        //     console.log(data);
-        //     setSearchInput('')
-        // })
+        try {
+            const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+                params: {
+                    part: 'snippet',
+                    key: API_KEY,
+                    q: searchInput,
+                    maxResults: 20
+                }
+            })
+            console.log(response.data.items);
+            localStorage.setItem('searchedVideos', JSON.stringify(response.data.items))
+            dispatch(setVideos(response.data.items))
+            setSearchInput('')
+            setOptions([])
+            
+        } catch (error) {
+            console.log(error);
+        }
     }
   return (
     <>
@@ -63,21 +111,17 @@ export default function Navbar() {
             edge='start' color='inherit'
             aria-label='menu' sx={{mr: 2}}
             ><Menu/></IconButton>}
-
-                {/* autocomplete button that you can submit */}
                 <Box  sx={{flexGrow: 1,display: 'flex', justifyContent: 'center'}} onSubmit={handleSearchSubmit}>
                     <form style={{display: 'flex', width: '100%', maxWidth: 500}} onSubmit={()=>handleSearchSubmit()}>
                 <Autocomplete
                 value={searchInput}
-                onInputChange={(event, newValue) => {
-                handleInputChange(newValue)
-                }}
-                disableClearable
                 
+                disableClearable
+                onSelect={(e)=>handleInputChange(e.target.value)}
                 freeSolo
                 inputMode='search'
                 options={options}
-                loading={loadingText}
+                loading={loading}
                 sx={{ marginLeft: 'auto', marginRight: 'auto', borderRadius: 10, '& .MuiOutlinedInput-root': {borderRadius: 10}, width: '90%'}}
                 loadingText={<div style={{textAlign: 'center'}}>
                     <CircularProgress color='secondary' size={20}/>
