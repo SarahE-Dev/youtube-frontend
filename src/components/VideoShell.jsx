@@ -5,6 +5,7 @@ import { useParams } from 'react-router'
 import Video from './Video'
 import axios from 'axios'
 
+
 export default function VideoShell({children}) {
     const categoryID = useParams().categoryID
     const categoryTitle = useParams().categoryTitle
@@ -21,6 +22,7 @@ export default function VideoShell({children}) {
                         key: import.meta.env.VITE_YOUTUBE_API_KEY
                     }
                 });
+                console.log(response.data.items);
                 setVideos(response.data.items);
             } catch (error) {
                 console.log(error); 
@@ -28,10 +30,10 @@ export default function VideoShell({children}) {
         };
 
         fetchData();
-    }, []);
+    }, [categoryID])
   return (
     <Container sx={{background: theme.palette.gradientBackground.primary, height: '100vh', paddingTop: '90px',overflow: 'scroll', paddingBottom: 3}} maxWidth={false}>
-        <Typography component='h1' p={5} textAlign='center'>{categoryTitle}</Typography>
+        <Typography component='h1' p={1} textAlign='center'>{categoryTitle.split('-').join(' & ')}</Typography>
         <Grid alignItems='center' spacing={{xs: 4, sm: 4, md: 5, lg: 6}} wrap='wrap' container>
             {videos?.map(video=>(
                 video.id.kind === 'youtube#channel' ? null :

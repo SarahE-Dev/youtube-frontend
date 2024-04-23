@@ -143,29 +143,31 @@ export default function Navbar() {
             width: '200px',
             backgroundColor: theme.palette.navBackground.primary,
             paddingTop: '80px',
-            
+            paddingBottom: 20
         }
     
     }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={toggleDrawer}>
         <Container
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%'}}>
                {list.map(item=>(
-                   <Button key={item.text} component={NavLink} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
-                   sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: isActive ? theme.palette.secondary.main : theme.palette.navBackground.primary}}
+                   <Button key={item.text}  component={NavLink} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
+                   sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: '&:active' ?  theme.palette.navBackground.primary : theme.palette.primary.main}}
                    variant='outlined' color='primary'>{item.text}</Button>
                ))}
-            {youtubeCategories.map(category=>(
-                
-                <Button component={NavLink} to={`/category/${category.id}/${category.title}`}
+            {youtubeCategories.map(category=>{
+                let title = category.title;
+                if(title.includes('&')) title = category.title.split(' & ').join('-');
+                return (<Button component={NavLink} to={`/category/${category.id}/${category.title}`}
                 variant='outlined'
                 key={category.id} sx={{
-                    mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: isActive ? theme.palette.secondary.main : theme.palette.navBackground.primary}}
+                    mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: '&:active' ?  theme.palette.navBackground.primary : theme.palette.primary.main}}
                 color='secondary'
                 size='small' >
                     
-                    {category.title}</Button>
+                    {category.title}</Button>)
+                    
                 
-            ))}
+})}
             </Container>
     </Drawer>
 }
