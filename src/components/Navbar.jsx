@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, dividerClasses } from '@mui/material'
+import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container } from '@mui/material'
 import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
 import { AccountCircleOutlined, Menu, MoreVert, SearchOutlined } from '@mui/icons-material';
@@ -6,49 +6,23 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
 import { setVideos } from '../features/video/videoSlice';
-
+import { useNavigate } from 'react-router';
+import youtubeCategories from '../helpers/categories';
+import { NavLink } from 'react-router-dom';
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
-const sampleVideoResponse = {
-    etag: 'PHfTdfpGdUAfXu4xjOs00aDmdL4',
-    id: {
-        kind: 'youtube#video',
-        videoId: 'PZt1vnxonJk'
-    },
-    kind: 'youtube#searchResult',
-    snippet: {
-        channelId: 'UCdC0An4ZPNr_YiFiYoVbwaw',
-        channelTitle: 'Daily Dose Of Internet',
-        description: 'Hello everyone, this is YOUR Daily Dose',
-        liveBroadcastContent: 'none',
-        publishedAt: '2023-12-17T20:13:36Z',
-        publishedTime: '2023-12-17T20:13:36Z',
-        thumbnails: {
-            default: {
-                height: 90,
-                url: "https://i.ytimg.com/vi/PZt1vnxonJk/default.jpg"
-                ,
-                width: 120
-            },
-            high: {
-                height: 360,
-                url: "https://i.ytimg.com/vi/PZt1vnxonJk/hqdefault.jpg",
-                width: 480
-            },
-            medium: {
-                height: 180,
-                url: "https://i.ytimg.com/vi/PZt1vnxonJk/mqdefault.jpg",
-                width: 320
-            }
-        },
-        title: "The Best Of The Internet (2023)"
-    }
-}
+const list = [
+    {text: 'Favorites'},
+    {text: 'History'},
+    {text: 'Watch Later'},
+    {text: 'Playlists'}
+]
 
 
 export default function Navbar() {
+    const navigate = useNavigate()
     const user = useSelector(state=>state.user.user)
     const [anchorEl, setAnchorEl] = useState(null);
     const dispatch = useDispatch()
@@ -57,6 +31,7 @@ export default function Navbar() {
     const [searchInput, setSearchInput] = useState('')
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const [isActive, setIsActive] = useState(false)
     const [loading, setLoading] = useState(false)
     const suggest = async(term) =>{
         
@@ -76,11 +51,11 @@ export default function Navbar() {
         setLoading(true)
         setSearchInput(input)
         suggest(input)
-        console.log(searchInput);
     }
     
     const handleSearchSubmit = async(e)=>{
         e.preventDefault()
+        
         try {
             const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
                 params: {
@@ -93,9 +68,10 @@ export default function Navbar() {
             console.log(response.data.items);
             localStorage.setItem('searchedVideos', JSON.stringify(response.data.items))
             dispatch(setVideos(response.data.items))
+            navigate('/')
             setSearchInput('')
             setOptions([])
-            
+        
         } catch (error) {
             console.log(error);
         }
@@ -134,31 +110,6 @@ export default function Navbar() {
                 <IconButton sx={{width: '10%'}} onClick={handleSearchSubmit} type='submit'><SearchOutlined/></IconButton>
                 </form>
                 </Box>
-                {/* <Autocomplete
-                inputMode='search'
-                onInputChange={(e, value)=>handleInputChange(value)}
-                id='autocomplete'
-
-                fullWidth
-                inputValue={searchInput}
-                loading={loadingText}
-                loadingText={<div style={{textAlign: 'center'}}>
-                    <CircularProgress color='secondary' size={20}/>
-                </div>}
-                sx={{flexGrow: 1, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto', backgroundColor: theme.palette.navBackground, borderRadius: 10, '& .MuiOutlinedInput-root': {borderRadius: 10}}}
-                 size='small'
-                options={options}
-                freeSolo
-                disableClearable
-                renderInput={(params)=>(
-                    <TextField color='secondary' {...params}
-                    sx={{mt: 1, mb: 1}}
-                    InputProps={{...params.InputProps, type: 'search',}}
-                    label='Search'
-                    variant='outlined' />
-                    
-                )}
-                /> */}
                 
                
             {user && 
@@ -196,19 +147,26 @@ export default function Navbar() {
         }
     
     }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={toggleDrawer}>
-        <Typography textAlign='center' variant='h4'>Logo</Typography>
-        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-            <ButtonGroup>
-            <Button variant='outlined' size='small' sx={{mt: 2, borderRadius: 10, fontSize: '.5rem'}}>Home</Button>
-            <Button variant='outlined' size='small' sx={{mt: 2, borderRadius: 10}}>Home</Button>
-            </ButtonGroup>
-            
-            <Button variant='outlined' size='small' sx={{mt: 2, borderRadius: 10}}>Home</Button>
-            <Button variant='outlined' size='small' sx={{mt: 2, borderRadius: 10}}>Home</Button>
-            <Button variant='outlined' size='small' sx={{mt: 2, borderRadius: 10}}>Home</Button>
-            <Button variant='outlined' size='small' sx={{mt: 2, borderRadius: 10}}>Home</Button>
-            <Button variant='outlined' size='small' sx={{mt: 2, borderRadius: 10}}>Home</Button>
-        </Box>
+        <Container
+             style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%'}}>
+               {list.map(item=>(
+                   <Button key={item.text} component={NavLink} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
+                   sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: isActive ? theme.palette.secondary.main : theme.palette.navBackground.primary}}
+                   variant='outlined' color='primary'>{item.text}</Button>
+               ))}
+            {youtubeCategories.map(category=>(
+                
+                <Button component={NavLink} to={`/category/${category.id}/${category.title}`}
+                variant='outlined'
+                key={category.id} sx={{
+                    mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: isActive ? theme.palette.secondary.main : theme.palette.navBackground.primary}}
+                color='secondary'
+                size='small' >
+                    
+                    {category.title}</Button>
+                
+            ))}
+            </Container>
     </Drawer>
 }
     </>
