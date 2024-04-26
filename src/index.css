@@ -23,3 +23,42 @@
 .active {
   background-color: #f1f1f1;
 }
+
+/* .video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+} */
+
+.video-container iframe {
+  width: 44vw;
+  height: 25vw;
+}
+
+.small-container iframe {
+  width: 95vw;
+  height: 49vw;
+}
+
+.small-container  {
+  display: flex;
+  justify-content: center;
+}
+
+.medium-container iframe {
+  width: 70vw;
+  height: 42vw;
+}
+
+.large-container iframe {
+  width: 60vw;
+  height: 35vw;
+}
+
+.xlarge-container iframe {
+  width: 50vw;
+  height: 30vw;
+}
+
+

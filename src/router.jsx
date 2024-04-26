@@ -7,6 +7,7 @@ import Favorites from "./components/Favorites";
 import Playlists from "./components/Playlists";
 import WatchLater from "./components/WatchLater";
 import History from "./components/History";
+import GetUserInfo from "./components/GetUserInfo";
 
 const Router = createBrowserRouter(
     [
@@ -42,6 +43,14 @@ const Router = createBrowserRouter(
                 {
                     path: "/history",
                     element: <History />,
+                },
+                {
+                    path: "/login",
+                    element: <GetUserInfo />,
+                },
+                {
+                    path: "/signup",
+                    element: <GetUserInfo />,
                 }
             ]
         }

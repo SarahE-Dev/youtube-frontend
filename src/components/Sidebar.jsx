@@ -1,4 +1,4 @@
-import { Home } from '@mui/icons-material'
+import { Favorite, WatchLater, History, PlaylistPlaySharp } from '@mui/icons-material'
 import { Drawer, List, ListItemIcon, ListItemButton, ListItemText, Button, Container, createStyles } from '@mui/material'
 import React, {useState} from 'react'
 import theme from '../theme'
@@ -6,10 +6,10 @@ import  youtubeCategories from '../helpers/categories'
 import { NavLink } from 'react-router-dom'
 
 const list = [
-    {text: 'Favorites'},
-    {text: 'History'},
-    {text: 'Watch Later'},
-    {text: 'Playlists'}
+  {text: 'Favorites', icon: <Favorite/>},
+  {text: 'History', icon: <History/>},
+  {text: 'Watch Later', icon: <WatchLater/>},
+  {text: 'Playlists', icon: <PlaylistPlaySharp/>}
 ]
 
 export default function Sidebar() {
@@ -33,7 +33,8 @@ export default function Sidebar() {
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%'}}>
                {list.map(item=>(
                 <>
-                   <Button component={NavLink}  key={item.text} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
+                   <Button startIcon={item.icon}
+                    component={NavLink}  key={item.text} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
                    sx={{ mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center'}}
                    variant='outlined' color='primary'>{item.text}</Button>
                    

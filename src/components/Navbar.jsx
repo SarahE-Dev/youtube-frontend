@@ -1,23 +1,24 @@
-import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container } from '@mui/material'
+import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon } from '@mui/material'
 import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
-import { AccountCircleOutlined, Menu, MoreVert, SearchOutlined } from '@mui/icons-material';
+import { AccountCircleOutlined, Favorite, History, Home, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
 import { setVideos } from '../features/video/videoSlice';
 import { useNavigate } from 'react-router';
 import youtubeCategories from '../helpers/categories';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
+import { logout } from '../features/user/userSlice';
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
 const list = [
-    {text: 'Favorites'},
-    {text: 'History'},
-    {text: 'Watch Later'},
-    {text: 'Playlists'}
+    {text: 'Favorites', icon: <Favorite/>},
+    {text: 'History', icon: <History/>},
+    {text: 'Watch Later', icon: <WatchLater/>},
+    {text: 'Playlists', icon: <PlaylistPlaySharp/>}
 ]
 
 
@@ -52,6 +53,11 @@ export default function Navbar() {
         setSearchInput(input)
         suggest(input)
     }
+
+    const handleMenuClick=(text)=>{
+        setAnchorEl(null);
+        navigate(`/${text}`)
+    }
     
     const handleSearchSubmit = async(e)=>{
         e.preventDefault()
@@ -81,7 +87,7 @@ export default function Navbar() {
     <AppBar sx={{backgroundColor: theme.palette.navBackground.primary, zIndex: 2000}} position='fixed'>
         
         <Toolbar >
-        {!isSmallScreen && <Typography variant='h4'>Logo</Typography>}
+        {!isSmallScreen && <Link to='/'><Typography variant='h4'>Logo</Typography></Link>}
             {isSmallScreen && <IconButton
             onClick={toggleDrawer}
             edge='start' color='inherit'
@@ -117,8 +123,8 @@ export default function Navbar() {
              <IconButton aria-controls='menu' aria-haspopup='true' edge='end' sx={{ml: 2}} onClick={(e)=>setAnchorEl(e.currentTarget)}><AccountCircleOutlined/></IconButton>
                 
              <Menu2 sx={{mt: 7}} transformOrigin={{vertical: 'top', horizontal: 'right'}} anchorOrigin={{vertical: 'top', horizontal: 'right'}} id='menu'  open={Boolean(anchorEl)} onClose={()=>setAnchorEl(null)} keepMounted anchorEl={anchorEl}>
-                <MenuItem>Profile</MenuItem>
-                <MenuItem>Logout</MenuItem>
+                <MenuItem><ListItemIcon><Person/></ListItemIcon>Profile</MenuItem>
+                <MenuItem onClick={()=>{dispatch(logout()); setAnchorEl(null)}}><ListItemIcon><Logout/></ListItemIcon>Logout</MenuItem>
                 </Menu2>
                 
                 </Box>
@@ -129,8 +135,8 @@ export default function Navbar() {
                 <MoreVert/></IconButton>
                 
              <Menu2 sx={{mt: 7}} transformOrigin={{vertical: 'top', horizontal: 'right'}} anchorOrigin={{vertical: 'top', horizontal: 'right'}} id='menu'  open={Boolean(anchorEl)} onClose={()=>setAnchorEl(null)} keepMounted anchorEl={anchorEl}>
-                <MenuItem>Login</MenuItem>
-                <MenuItem>Signup</MenuItem>
+                <MenuItem onClick={()=>handleMenuClick('login')}><ListItemIcon><Login/></ListItemIcon>Login</MenuItem>
+                <MenuItem onClick={()=>handleMenuClick('signup')}><ListItemIcon><PersonAdd/></ListItemIcon>Signup</MenuItem>
                 </Menu2>
                 
                 </Box>
@@ -149,11 +155,16 @@ export default function Navbar() {
     }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={toggleDrawer}>
         <Container
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%'}}>
+                
                {list.map(item=>(
+                
                    <Button key={item.text}  component={NavLink} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
-                   sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: '&:active' ?  theme.palette.navBackground.primary : theme.palette.primary.main}}
+                   sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: theme.palette.navBackground.primary}}
+                   startIcon={item.icon}
                    variant='outlined' color='primary'>{item.text}</Button>
                ))}
+               
+                
             {youtubeCategories.map(category=>{
                 let title = category.title;
                 if(title.includes('&')) title = category.title.split(' & ').join('-');
@@ -167,7 +178,8 @@ export default function Navbar() {
                     {category.title}</Button>)
                     
                 
-})}
+})}         
+                
             </Container>
     </Drawer>
 }
