@@ -26,6 +26,7 @@ const Router = createBrowserRouter(
                 },
                 {
                     path: "videos/:videoID",
+                    exact: true,
                     element: <PlayVideo />,
                 },
                 {

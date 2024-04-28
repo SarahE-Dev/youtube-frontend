@@ -56,9 +56,34 @@
   height: 35vw;
 }
 
-.xlarge-container iframe {
+.xlarge-container iframe  {
   width: 50vw;
   height: 30vw;
+}
+
+.video-container  {
+  width: 44vw;
+}
+
+.small-container  {
+  width: 95vw;
+}
+
+.small-container  {
+  display: flex;
+  justify-content: center;
+}
+
+.medium-container  {
+  width: 70vw;
+}
+
+.large-container {
+  width: 60vw;
+}
+
+.xlarge-container  {
+  width: 50vw;
 }
 
 

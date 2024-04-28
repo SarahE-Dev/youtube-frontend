@@ -3,13 +3,19 @@ import { Grid, Avatar, Typography } from '@mui/material'
 import { decodeHTML } from '../helpers/helper'
 import getChannelAvatar from '../helpers/getAvatar'
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setChannelImageOnVideo } from '../features/video/videoSlice'
+
 
 export default function Video(props) {
     const {video} = props;
     const [avatarSrc, setAvatarSrc] = useState('')
+    const dispatch = useDispatch()
     useEffect(() => {
         getChannelAvatar(video.snippet.channelId).then(res=>{
+          console.log(res);
             setAvatarSrc(res)
+          dispatch(setChannelImageOnVideo({video, channelImage: res}))
         })
     }, [])
     

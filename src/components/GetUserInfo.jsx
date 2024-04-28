@@ -132,7 +132,7 @@ export default function GetUserInfo() {
               <div style={{display: 'flex', justifyContent: 'center', margin: 7}}>
                 <Button size='large' type='submit' variant='outlined' sx={{width: '50%', m: 3, borderRadius: 15}}>Submit</Button>
               </div>
-              <div style={{display: 'flex', justifyContent: 'center', marginBottom: 50}}>
+              <div style={{display: 'flex', justifyContent: 'center', marginBottom: 50, alignItems: 'center'}}>
                 <Typography>Already have an account?</Typography>
                 <Link style={{color: 'deeppink', marginLeft: 5}} to='/login'>Login</Link>
               </div>

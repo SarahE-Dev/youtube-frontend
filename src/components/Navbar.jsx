@@ -1,7 +1,7 @@
 import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Slide } from '@mui/material'
 import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
-import { AccountCircleOutlined, Favorite, History, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube } from '@mui/icons-material';
+import { AccountCircleOutlined, Favorite, History, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube as YouTubeIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
@@ -11,6 +11,8 @@ import youtubeCategories from '../helpers/categories';
 import { Link, NavLink } from 'react-router-dom';
 import { logout } from '../features/user/userSlice';
 import { useLocation } from 'react-router';
+
+
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
@@ -28,6 +30,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 
 export default function Navbar() {
+    
     const navigate = useNavigate()
     const user = useSelector(state=>state.user.user)
     const [anchorEl, setAnchorEl] = useState(null);
@@ -43,7 +46,6 @@ export default function Navbar() {
     const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
     const suggest = async(term) =>{
-        
         const response = await axios(`https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=us&ds=yt&q=${term}`, {
             mode: 'no-cors',
             method: 'GET',
@@ -57,6 +59,7 @@ export default function Navbar() {
     
     const toggleDrawer = ()=>setIsDrawerOpen(!isDrawerOpen)
     const handleInputChange =async(input) => {
+        console.log(input);
         setLoading(true)
         setSearchInput(input)
         suggest(input)
@@ -80,7 +83,7 @@ export default function Navbar() {
                     part: 'snippet',
                     key: API_KEY,
                     q: searchInput,
-                    maxResults: 20
+                    maxResults: 52
                 }
             })
             console.log(response.data.items);
@@ -99,7 +102,7 @@ export default function Navbar() {
     <AppBar sx={{backgroundColor: theme.palette.navBackground.primary, zIndex: 2000}} position='fixed'>
         
         <Toolbar >
-        {!isSmallScreen && <Link to='/' style={{textDecoration: 'none'}}><Button variant='text' color='success'><YouTube /><Typography sx={{textShadow: '1px 1px 2px  white'}} >BlueZack</Typography></Button></Link>}
+        {!isSmallScreen && <Link to='/' style={{textDecoration: 'none'}}><Button variant='text' color='success'><YouTubeIcon /><Typography sx={{textShadow: '1px 1px 2px  white'}} >BlueZack</Typography></Button></Link>}
             {isSmallScreen && !loginSignup &&
             <IconButton
             onClick={toggleDrawer}
@@ -111,14 +114,14 @@ export default function Navbar() {
             <IconButton
             edge='start' color='white'
             aria-label='home' sx={{mr: 2}}
-            ><YouTube /></IconButton></Link>}
+            ><YouTubeIcon /></IconButton></Link>}
                 <Box  sx={{flexGrow: 1,display: 'flex', justifyContent: 'center'}} onSubmit={handleSearchSubmit}>
-                    <form style={{display: 'flex', width: '100%', maxWidth: 500}} onSubmit={()=>handleSearchSubmit()}>
+                    <form style={{display: 'flex', width: '100%', maxWidth: 500}} onSubmit={handleSearchSubmit}>
                 <Autocomplete
                 value={searchInput}
                 
                 disableClearable
-                onSelect={(e)=>handleInputChange(e.target.value)}
+                onSelectCapture={(e)=>handleInputChange(e.target.value)}
                 freeSolo
                 inputMode='search'
                 options={options}

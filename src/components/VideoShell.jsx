@@ -4,12 +4,16 @@ import theme from '../theme'
 import { useParams } from 'react-router'
 import Video from './Video'
 import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { setVideos as setMainVideos, setChannelImageOnVideo } from '../features/video/videoSlice'
+
 
 
 export default function VideoShell({children}) {
     const categoryID = useParams().categoryID
     const categoryTitle = useParams().categoryTitle
     const [videos, setVideos] = useState([])
+    const dispatch = useDispatch()
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -18,12 +22,14 @@ export default function VideoShell({children}) {
                         part: 'snippet',
                         chart: 'mostPopular',  
                         videoCategoryId: categoryID, 
-                        maxResults: 25,
+                        maxResults: 52,
                         key: import.meta.env.VITE_YOUTUBE_API_KEY
                     }
                 });
                 console.log(response.data.items);
                 setVideos(response.data.items);
+                dispatch(setMainVideos(response.data.items))
+
             } catch (error) {
                 console.log(error); 
             } 
@@ -36,8 +42,10 @@ export default function VideoShell({children}) {
         <Typography component='h1' p={1} textAlign='center'>{categoryTitle.split('-').join(' & ')}</Typography>
         <Grid alignItems='center' spacing={{xs: 4, sm: 4, md: 5, lg: 6}} wrap='wrap' container>
             {videos?.map(video=>(
+                
                 video.id.kind === 'youtube#channel' ? null :
                 <Video key={video.snippet.title} video={video} />
+
             ))}
         </Grid>
     </Container>
