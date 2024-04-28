@@ -1,7 +1,7 @@
-import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon } from '@mui/material'
+import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Slide } from '@mui/material'
 import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
-import { AccountCircleOutlined, Favorite, History, Home, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater } from '@mui/icons-material';
+import { AccountCircleOutlined, Favorite, History, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router';
 import youtubeCategories from '../helpers/categories';
 import { Link, NavLink } from 'react-router-dom';
 import { logout } from '../features/user/userSlice';
+import { useLocation } from 'react-router';
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
@@ -21,6 +22,10 @@ const list = [
     {text: 'Playlists', icon: <PlaylistPlaySharp/>}
 ]
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
+
 
 export default function Navbar() {
     const navigate = useNavigate()
@@ -30,10 +35,13 @@ export default function Navbar() {
     const [options, setOptions] = useState([])
     const theme = useTheme();
     const [searchInput, setSearchInput] = useState('')
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const { pathname} = useLocation()
+    const isSmallScreen = useMediaQuery(theme=>theme.breakpoints.down('md'))
+    const loginSignup = pathname === '/login' || pathname === '/signup';
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isActive, setIsActive] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useState(false)
     const suggest = async(term) =>{
         
         const response = await axios(`https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=us&ds=yt&q=${term}`, {
@@ -58,6 +66,10 @@ export default function Navbar() {
         setAnchorEl(null);
         navigate(`/${text}`)
     }
+
+    const handleClose = () => setOpen(false)
+
+    const handleOpen = () => setOpen(true)
     
     const handleSearchSubmit = async(e)=>{
         e.preventDefault()
@@ -87,12 +99,19 @@ export default function Navbar() {
     <AppBar sx={{backgroundColor: theme.palette.navBackground.primary, zIndex: 2000}} position='fixed'>
         
         <Toolbar >
-        {!isSmallScreen && <Link to='/'><Typography variant='h4'>Logo</Typography></Link>}
-            {isSmallScreen && <IconButton
+        {!isSmallScreen && <Link to='/' style={{textDecoration: 'none'}}><Button variant='text' color='success'><YouTube /><Typography sx={{textShadow: '1px 1px 2px  white'}} >BlueZack</Typography></Button></Link>}
+            {isSmallScreen && !loginSignup &&
+            <IconButton
             onClick={toggleDrawer}
             edge='start' color='inherit'
             aria-label='menu' sx={{mr: 2}}
             ><Menu/></IconButton>}
+            {isSmallScreen && loginSignup && 
+            <Link to='/' style={{textDecoration: 'none'}} >
+            <IconButton
+            edge='start' color='white'
+            aria-label='home' sx={{mr: 2}}
+            ><YouTube /></IconButton></Link>}
                 <Box  sx={{flexGrow: 1,display: 'flex', justifyContent: 'center'}} onSubmit={handleSearchSubmit}>
                     <form style={{display: 'flex', width: '100%', maxWidth: 500}} onSubmit={()=>handleSearchSubmit()}>
                 <Autocomplete
@@ -143,7 +162,7 @@ export default function Navbar() {
                 }
         </Toolbar>
     </AppBar>
-    {isSmallScreen &&
+    {isSmallScreen && !loginSignup &&
     <Drawer PaperProps={{
         style: {
             width: '200px',
@@ -154,16 +173,23 @@ export default function Navbar() {
     
     }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={toggleDrawer}>
         <Container
-             style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%'}}>
+             style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '110%', marginLeft: '-10px'}}>
                 
                {list.map(item=>(
                 
-                   <Button key={item.text}  component={NavLink} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
+                   <Button key={item.text} onClick={user ? null : handleOpen}  component={user ? NavLink : Button} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
                    sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: theme.palette.navBackground.primary}}
                    startIcon={item.icon}
                    variant='outlined' color='primary'>{item.text}</Button>
                ))}
-               
+               <Dialog TransitionComponent={Transition} open={open} onClose={handleClose} sx={{textAlign: 'center'}}>
+                <DialogTitle>Login or Signup</DialogTitle>
+                <DialogContent>You must be logged in.</DialogContent>
+                <DialogActions>
+                    <Button sx={{flexGrow: 1}} component={NavLink} to='/login' onClick={handleClose}>Login</Button>
+                    <Button color='secondary' component={NavLink} to='/signup' sx={{flexGrow: 1}} onClick={handleClose}>Signup</Button>
+                </DialogActions>
+            </Dialog>
                 
             {youtubeCategories.map(category=>{
                 let title = category.title;

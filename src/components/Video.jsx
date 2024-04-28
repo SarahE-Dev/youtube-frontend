@@ -15,7 +15,7 @@ export default function Video(props) {
     
   return (
     <Grid height='fit-content' xs={6} sm={4} md={4} lg={3} item>
-      <Link state={{video: video}} to={`/videos/${video.id.videoId}`}>
+      <Link state={{video: video, channelImage: avatarSrc}} to={`/videos/${video.id.videoId}`}>
     <img width='100%' style={{objectFit: 'cover', objectPosition: 'top'}}  src={video.snippet.thumbnails.medium.url} alt="" />
     </Link>
     <div style={{display: 'flex', alignItems: 'center',}}>

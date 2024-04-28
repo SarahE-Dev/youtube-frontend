@@ -9,6 +9,9 @@ let theme = createTheme({
         secondary: {
             main: '#FF0D86'
         },
+        success: {
+            main: '#2c2bfa'
+        },
         gradientBackground: {
             primary: 'linear-gradient(181deg, rgb(2, 0, 97) 15%, rgb(97, 149, 219) 158.5%)'
         },
