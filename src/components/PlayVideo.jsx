@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { decodeHTML } from '../helpers/helper';
 import getChannelAvatar from '../helpers/getAvatar'
-import { Add, ExpandMoreOutlined, Favorite, FavoriteBorderOutlined } from '@mui/icons-material'
+import { Add, Comment, ExpandMoreOutlined, Favorite, FavoriteBorderOutlined } from '@mui/icons-material'
 import {styled} from '@mui/material/styles'
 
 
@@ -30,6 +30,7 @@ export default function PlayVideo({children, ...props}) {
   const [videoToPlay, setVideoToPlay] = useState(video)
   const [imageToUse, setImageToUse] = useState(channelImage)
   const [expanded, setExpanded] = useState(false)
+  const [comments, setComments] = useState([{comment: 'comment'}])
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isMediumScreen = useMediaQuery(theme.breakpoints.down('md') && theme.breakpoints.up('sm'));
@@ -65,22 +66,12 @@ export default function PlayVideo({children, ...props}) {
       <YouTube videoId={videoToPlay.id.videoId ? videoToPlay.id.videoId : videoToPlay.id} />
       
       <div style={{display: 'flex', flexDirection: 'column'}}>
-      {/* <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-        <div style={{display: 'flex', alignItems: 'center',}}>
-        <Avatar sx={{width: smallForImage ? 40 : 50, height: smallForImage ? 40 : 50, m: 2}} alt={videoToPlay.snippet.channelTitle} src={videoToPlay.channelImage ? videoToPlay.channelImage : getChannelAvatar(videoToPlay.snippet.channelId)}  />
-      <Typography variant='p'>{videoToPlay.snippet.channelTitle}</Typography>
-      </div>
-      <div style={{display: 'flex', alignItems: 'center'}}>
-        <IconButton sx={{mr: 1}}><Add /></IconButton>
-        <StyledRating size='medium'  defaultValue={0}  max={1} icon={<Favorite fontSize='inherit' />} emptyIcon={<FavoriteBorderOutlined fontSize='inherit'/>} />
-      </div>
-      </div> */}
       <div style={{overflowY: 'scroll', marginBottom: 5}}>
         <Accordion disableGutters sx={{background: theme.palette.navBackground.primary}} >
           <AccordionSummary  >
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
           <div style={{display: 'flex', alignItems: 'center',}}>
-        <Avatar sx={{width: smallForImage ? 40 : 50, height: smallForImage ? 40 : 50, m: 2}} alt={videoToPlay.snippet.channelTitle} src={videoToPlay.channelImage ? videoToPlay.channelImage : getChannelAvatar(videoToPlay.snippet.channelId)}  />
+        <Avatar sx={{width: smallForImage ? 40 : 50, height: smallForImage ? 40 : 50, m: 2}} alt={videoToPlay.snippet.channelTitle} src={imageToUse}  />
       <Typography variant='p'>{videoToPlay.snippet.channelTitle}</Typography>
       </div>
       <div style={{display: 'flex', alignItems: 'center'}}>
@@ -98,6 +89,16 @@ export default function PlayVideo({children, ...props}) {
               <Typography>{videoToPlay.snippet.description}</Typography>
             </AccordionDetails>
             
+        </Accordion>
+        <Accordion sx={{background: theme.palette.navBackground.primary}}>
+            <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+              Comments
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>{comments.map(item=>(
+                <Comment key={item.id} comment={item} />
+              ))}</Typography>
+            </AccordionDetails>
         </Accordion>
       </div>
         {useMediaQuery(theme.breakpoints.up('sm')) ? null : (

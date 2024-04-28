@@ -5,7 +5,7 @@ import getChannelAvatar from '../helpers/getAvatar'
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setChannelImageOnVideo } from '../features/video/videoSlice'
-
+                                        
 
 export default function Video(props) {
     const {video} = props;

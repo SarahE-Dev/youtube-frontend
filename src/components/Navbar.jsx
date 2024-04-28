@@ -83,9 +83,10 @@ export default function Navbar() {
                     part: 'snippet',
                     key: API_KEY,
                     q: searchInput,
-                    maxResults: 52
+                    maxResults: 25
                 }
             })
+            
             console.log(response.data.items);
             localStorage.setItem('searchedVideos', JSON.stringify(response.data.items))
             dispatch(setVideos(response.data.items))
