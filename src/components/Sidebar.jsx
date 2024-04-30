@@ -1,5 +1,5 @@
-import { Favorite, WatchLater, History, PlaylistPlaySharp } from '@mui/icons-material'
-import { Drawer, List, ListItemIcon, ListItemButton, ListItemText, Button, Container, createStyles, Slide, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import { Favorite, WatchLater, History, PlaylistPlaySharp, AndroidSharp, Draw } from '@mui/icons-material'
+import { Drawer, List, ListItemIcon, ListItemButton, ListItemText, Button, Container, createStyles, Slide, Dialog, DialogTitle, DialogContent, DialogActions, Fab } from '@mui/material'
 import React, {useState} from 'react'
 import theme from '../theme'
 import  youtubeCategories from '../helpers/categories'
@@ -9,7 +9,6 @@ import { useSelector } from 'react-redux'
 const list = [
   {text: 'Favorites', icon: <Favorite/>},
   {text: 'History', icon: <History/>},
-  {text: 'Watch Later', icon: <WatchLater />},
   {text: 'Playlists', icon: <PlaylistPlaySharp/>}
 ]
 
@@ -23,6 +22,7 @@ export default function Sidebar() {
     const [open, setOpen] = useState(false)
     const handleClickOpen = () => setOpen(true)
     const handleClose = () => setOpen(false)
+    const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
   return (
     <Drawer
     PaperProps={{
@@ -35,6 +35,22 @@ export default function Sidebar() {
     }}
     className='sidebar'
     variant='permanent' anchor='left'>
+            <Drawer sx={{
+          '& .MuiDrawer-paper': {
+            backgroundColor: theme.palette.navBackground.primary,
+            height: '40vh'
+          },
+        }} variant='temporary' anchor='bottom' open={bottomDrawerOpen} onClose={()=>setBottomDrawerOpen(false)}>
+                <List>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <AndroidSharp />
+                        </ListItemIcon>
+                        <ListItemText>Android</ListItemText>
+                    </ListItemButton>
+                </List>
+            </Drawer>
+
         
             <Dialog TransitionComponent={Transition} open={open} onClose={handleClose} sx={{textAlign: 'center'}}>
                 <DialogTitle>Login or Signup</DialogTitle>
@@ -55,6 +71,10 @@ export default function Sidebar() {
                    
                         </>
                ))} 
+               <div style={{display: 'flex', justifyContent: 'center'}}>
+               <Fab onClick={()=>setBottomDrawerOpen(true)} sx={{mt: 2, width: '50%', borderRadius: 15}} variant='outlined' color='primary'><AndroidSharp color='success' /></Fab>
+               </div>
+               
             {youtubeCategories.map(category=>{
                 let title = category.title;
                 if(title.includes('&')) title = category.title.split(' & ').join('-');

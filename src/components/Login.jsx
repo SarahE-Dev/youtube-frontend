@@ -4,36 +4,47 @@ import { Link } from 'react-router-dom'
 import { useMediaQuery } from '@mui/material'
 import { useState } from 'react'
 import validator from 'validator'
+import Axios from '../helpers/Axios'
+import { Navigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { login } from '../features/user/userSlice'
+import theme from '../theme'
+import { checkAuthUser } from '../hooks/checkAuthUser'
 
 
 export default function Login() {
+    const dispatch = useDispatch()
     const landcape = useMediaQuery('(orientation : landscape)')
     const isMedium = useMediaQuery('(max-width: 950px)')
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const handleUsernameChange=(text)=>{
-            setUsername(text)
+    const {checkIfCookieExists, loginUser} = checkAuthUser()
+    if(checkIfCookieExists()){
+      loginUser()
+      return <Navigate to='/' />
     }
-    const handlePasswordChange=(text)=>{
-            setPassword(text)
-    }
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) => {
         e.preventDefault()
-        if(username && password){
-            console.log('Submitted')
+        const data =  {
+            username: username,
+            password: password
         }
+        const user = await Axios.post('/login', data)
+        setPassword('')
+        setUsername('')
     }
   return (
+    <Container maxWidth='xl' sx={{height: '100vh', background: theme.palette.gradientBackground.primary, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll', pt: 2}}>
     <Container sx={{textAlign: 'center', pt: landcape && isMedium ? 10 : 5}} maxWidth='xs'>
             <form onSubmit={handleSubmit} style={{}}>
                 <Stack spacing={3}>
                     <TextField 
-                    onChange={(e)=>handleUsernameChange(e.target.value)} 
+                    onChange={(e)=>setUsername(e.target.value)} 
                     required
                     variant='filled'
                     color='secondary' label='Username' />
                     <TextField 
-                    onChange={(e)=>handlePasswordChange(e.target.value)}
+                    onChange={(e)=>setPassword(e.target.value)}
                     required
                     variant='filled'
                     color='secondary' label='Password' />
@@ -48,5 +59,6 @@ export default function Login() {
                 </Stack>
             </form>
           </Container>
+    </Container>
   )
 }

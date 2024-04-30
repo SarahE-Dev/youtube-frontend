@@ -1,8 +1,9 @@
 import React from 'react'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
-import {  useMediaQuery } from '@mui/material'
+import { useMediaQuery } from '@mui/material'
 import { Outlet, useLocation } from 'react-router'
+
 
 export default function Layout({children}) {
     const { pathname} = useLocation()

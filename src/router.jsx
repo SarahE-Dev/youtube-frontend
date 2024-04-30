@@ -8,6 +8,8 @@ import Playlists from "./components/Playlists";
 import WatchLater from "./components/WatchLater";
 import History from "./components/History";
 import GetUserInfo from "./components/GetUserInfo";
+import Profile from "./components/Profile";
+import Login from "./components/Login";
 
 const Router = createBrowserRouter(
     [
@@ -18,6 +20,7 @@ const Router = createBrowserRouter(
             children: [
                 {
                     path: "/",
+                    exact: true,
                     element: <Home />,
                 },
                 {
@@ -25,7 +28,7 @@ const Router = createBrowserRouter(
                     element: <VideoShell />,
                 },
                 {
-                    path: "videos/:videoID",
+                    path: "/videos/:videoID",
                     exact: true,
                     element: <PlayVideo />,
                 },
@@ -34,7 +37,7 @@ const Router = createBrowserRouter(
                     element: <Favorites />,
                 },
                 {
-                    path: "playlists",
+                    path: "/playlists",
                     element: <Playlists />,
                 },
                 {
@@ -47,11 +50,15 @@ const Router = createBrowserRouter(
                 },
                 {
                     path: "/login",
-                    element: <GetUserInfo />,
+                    element: <Login />,
                 },
                 {
                     path: "/signup",
                     element: <GetUserInfo />,
+                },
+                {
+                    path: '/profile',
+                    element: <Profile />
                 }
             ]
         }

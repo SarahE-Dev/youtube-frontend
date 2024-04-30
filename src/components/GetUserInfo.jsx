@@ -6,9 +6,13 @@ import { Form, Link } from 'react-router-dom'
 import {useMediaQuery} from '@mui/material'
 import Login from './Login'
 import validator from 'validator'
+import Axios from '../helpers/Axios'
+import { checkAuthUser } from '../hooks/checkAuthUser'
+import { Navigate } from 'react-router'
 
 export default function GetUserInfo() {
     const {pathname} = useLocation()
+    const {checkIfCookieExists, loginUser} = checkAuthUser()
     const landcape = useMediaQuery('(orientation : landscape)')
     const isMedium = useMediaQuery('(max-width: 950px)')
     const [firstName, setFirstName] = useState('');
@@ -24,6 +28,10 @@ export default function GetUserInfo() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [avatar, setAvatar] = useState('')
+    if(checkIfCookieExists()){
+      return <Navigate to='/' />
+      
+    }
     const handleFirstNameChange=(text)=>{
             setFirstName(text)
             if(!validator.isAlpha(text, 'en-US')){
@@ -73,15 +81,23 @@ export default function GetUserInfo() {
             }
     }
 
+    const handleSignupSubmit = async (e) => {
+      e.preventDefault()
+      const data = {
+        firstName: firstName,
+        lastName: lastName,
+        username: username,
+        email: email,
+        password: password
+      }
+      const user = await Axios.post('/signup', data)
+      console.log(user);
+    }
+
   return (
     <Container maxWidth='xl' sx={{height: '100vh', background: theme.palette.gradientBackground.primary, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll', pt: 2}}>
-        {pathname === '/login' && 
-          <Login />
-        }
-        {
-          pathname === '/signup' && (
             <Container sx={{textAlign: 'center', mt: landcape && isMedium ? 25 : 10}} maxWidth='md'>
-            <form>
+            <form onSubmit={handleSignupSubmit}>
               <div style={{display: 'flex'}}>
                 <FormControl sx={{m: 1, flexGrow: 1}}>
                 <TextField  value={firstName} onChange={(e)=>handleFirstNameChange(e.target.value)} required  color='secondary' type='text' label='First Name' variant='filled' />
@@ -138,8 +154,6 @@ export default function GetUserInfo() {
               </div>
             </form>
           </Container>
-          )
-        }
 
         </Container>
   )

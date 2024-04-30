@@ -1,7 +1,7 @@
-import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Slide } from '@mui/material'
+import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Slide, Fab, List, ListItemButton, ListItemText } from '@mui/material'
 import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
-import { AccountCircleOutlined, Favorite, History, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube as YouTubeIcon } from '@mui/icons-material';
+import { AccountCircleOutlined, AndroidSharp, Favorite, History, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube as YouTubeIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
@@ -11,7 +11,8 @@ import youtubeCategories from '../helpers/categories';
 import { Link, NavLink } from 'react-router-dom';
 import { logout } from '../features/user/userSlice';
 import { useLocation } from 'react-router';
-
+import Axios from '../helpers/Axios';
+import Cookies from 'js-cookie';
 
 
 
@@ -20,7 +21,6 @@ const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 const list = [
     {text: 'Favorites', icon: <Favorite/>},
     {text: 'History', icon: <History/>},
-    {text: 'Watch Later', icon: <WatchLater/>},
     {text: 'Playlists', icon: <PlaylistPlaySharp/>}
 ]
 
@@ -45,6 +45,7 @@ export default function Navbar() {
     const [isActive, setIsActive] = useState(false)
     const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
+    const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
     const suggest = async(term) =>{
         const response = await axios(`https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=us&ds=yt&q=${term}`, {
             mode: 'no-cors',
@@ -74,6 +75,11 @@ export default function Navbar() {
 
     const handleOpen = () => setOpen(true)
     
+    const handleLogout = () =>{
+        dispatch(logout())
+        Cookies.remove('youtube-jwt')
+    }
+
     const handleSearchSubmit = async(e)=>{
         e.preventDefault()
         
@@ -139,15 +145,30 @@ export default function Navbar() {
                 <IconButton sx={{width: '10%'}} onClick={handleSearchSubmit} type='submit'><SearchOutlined/></IconButton>
                 </form>
                 </Box>
-                
+                {isSmallScreen && <Fab color='primary' onClick={()=>setBottomDrawerOpen(true)} sx={{position: 'fixed', bottom: 30, left: 30}}><AndroidSharp color='success' /></Fab>}
+                <Drawer sx={{
+          '& .MuiDrawer-paper': {
+            backgroundColor: theme.palette.navBackground.primary,
+            height: '40vh'
+          },
+        }} variant='temporary' anchor='bottom' open={bottomDrawerOpen} onClose={()=>setBottomDrawerOpen(false)}>
+                <List>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <AndroidSharp />
+                        </ListItemIcon>
+                        <ListItemText>Android</ListItemText>
+                    </ListItemButton>
+                </List>
+            </Drawer>
                
             {user && 
             <Box sx={{display: 'flex'}}>
              <IconButton aria-controls='menu' aria-haspopup='true' edge='end' sx={{ml: 2}} onClick={(e)=>setAnchorEl(e.currentTarget)}><AccountCircleOutlined/></IconButton>
                 
              <Menu2 sx={{mt: 7}} transformOrigin={{vertical: 'top', horizontal: 'right'}} anchorOrigin={{vertical: 'top', horizontal: 'right'}} id='menu'  open={Boolean(anchorEl)} onClose={()=>setAnchorEl(null)} keepMounted anchorEl={anchorEl}>
-                <MenuItem><ListItemIcon><Person/></ListItemIcon>Profile</MenuItem>
-                <MenuItem onClick={()=>{dispatch(logout()); setAnchorEl(null)}}><ListItemIcon><Logout/></ListItemIcon>Logout</MenuItem>
+                <MenuItem component={NavLink} to='/profile' onClick={()=>setAnchorEl(null)}><ListItemIcon><Person/></ListItemIcon>Profile</MenuItem>
+                <MenuItem onClick={()=>{handleLogout(); setAnchorEl(null)}}><ListItemIcon><Logout/></ListItemIcon>Logout</MenuItem>
                 </Menu2>
                 
                 </Box>
