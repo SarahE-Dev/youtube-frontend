@@ -14,7 +14,6 @@ export const checkAuthUser = () => {
         if(checkIfCookieExists()){
             const user = await jwtDecode(Cookies.get('youtube-jwt'))
             const userInfo = await Axios.post('/get-all-user-info', {user: user.id})
-            console.log(userInfo.data.user); 
             dispatch(login(userInfo.data.user))
         }
     }

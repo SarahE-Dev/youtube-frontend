@@ -1,4 +1,4 @@
-import { Favorite, WatchLater, History, PlaylistPlaySharp, AndroidSharp, Draw } from '@mui/icons-material'
+import { Favorite, WatchLater, History, PlaylistPlaySharp, AndroidSharp, Draw, Home } from '@mui/icons-material'
 import { Drawer, List, ListItemIcon, ListItemButton, ListItemText, Button, Container, createStyles, Slide, Dialog, DialogTitle, DialogContent, DialogActions, Fab } from '@mui/material'
 import React, {useState} from 'react'
 import theme from '../theme'
@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 const list = [
   {text: 'Favorites', icon: <Favorite/>},
   {text: 'History', icon: <History/>},
-  {text: 'Playlists', icon: <PlaylistPlaySharp/>}
+  {text: 'Playlists', icon: <PlaylistPlaySharp/>},
 ]
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -78,7 +78,7 @@ export default function Sidebar() {
             {youtubeCategories.map(category=>{
                 let title = category.title;
                 if(title.includes('&')) title = category.title.split(' & ').join('-');
-                return (<Button component={NavLink} className={(state)=>console.log(state)} to={`/category/${category.id}/${title}`}
+                return (<Button component={NavLink}  to={`/category/${category.id}/${title}`}
                 key={category.id} variant='outlined'
                 color='secondary'
                 size='small' sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center'}}>

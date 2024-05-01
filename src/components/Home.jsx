@@ -34,11 +34,12 @@ export default function Home() {
     useEffect(() => {
         
         const fetchVideos = async () => {
+          dispatch(setVideos([]))
             const res = await fetch(requestUrl)
             const data = await res.json()
             dispatch(setVideos(data.items))
         }
-        videos.length > 0 ? null : fetchVideos()
+       fetchVideos()
         // fetchVideos()
         
     }, [])

@@ -11,12 +11,13 @@ export default function Video(props) {
     const {video} = props;
     const [avatarSrc, setAvatarSrc] = useState('')
     const dispatch = useDispatch()
+
     useEffect(() => {
         getChannelAvatar(video.snippet.channelId).then(res=>{
             setAvatarSrc(res)
           dispatch(setChannelImageOnVideo({video, channelImage: res}))
         })
-    }, [])
+    }, [video])
     
   return (
     <Grid height='fit-content' xs={6} sm={4} md={4} lg={3} item>

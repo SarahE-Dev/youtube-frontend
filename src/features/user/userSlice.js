@@ -22,7 +22,7 @@ const userSlice = createSlice({
             state.user.playlists = [...state.user.playlists, action.payload]
         },
         removePlaylist: (state, action) => {
-            state.user.playlists = state.user.playlists.filter(playlist => playlist !== action.payload)
+            state.user.playlists = state.user.playlists.filter(playlist => playlist._id !== action.payload)
         },
         addWatchLater: (state, action) => {
             state.user.watchLater.push(action.payload)
@@ -37,10 +37,22 @@ const userSlice = createSlice({
             state.user.history = state.user.history.filter(video => video !== action.payload)
         },
         addVideoToPlaylist: (state, action) => {
-            state.user.playlists[action.payload.playlistIndex].videos.push(action.payload.video)
+            const {playlistId, video} = action.payload
+            const playlistIndex = state.user.playlists.findIndex(playlist => playlist._id === playlistId)
+            const playlist = {...state.user.playlists[playlistIndex], videos: [...state.user.playlists[playlistIndex].videos, video]}
+            
+            state.user.playlists = [...state.user.playlists.slice(0, playlistIndex), playlist, ...state.user.playlists.slice(playlistIndex + 1)]
+
+
         },
         removeVideoFromPlaylist: (state, action) => {
-            state.user.playlists[action.payload.playlistIndex].videos = state.user.playlists[action.payload.playlistIndex].videos.filter(video => video !== action.payload.video)
+            const {playlistId, videoId}= action.payload
+            const playlistIndex = state.user.playlists.findIndex(playlist => playlist._id === playlistId)
+            const updatedPlaylist = {
+                ...state.user.playlists[playlistIndex],
+                videos: state.user.playlists[playlistIndex].videos.filter(video => video.videoId !== videoId)
+            }
+            state.user.playlists = [...state.user.playlists.slice(0, playlistIndex), updatedPlaylist, ...state.user.playlists.slice(playlistIndex + 1)]
         },
         addComment: (state, action) => {
             state.user.comments.push(action.payload)

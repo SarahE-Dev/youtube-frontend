@@ -1,7 +1,7 @@
 import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Slide, Fab, List, ListItemButton, ListItemText } from '@mui/material'
 import React, { useState } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
-import { AccountCircleOutlined, AndroidSharp, Favorite, History, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube as YouTubeIcon } from '@mui/icons-material';
+import { AccountCircleOutlined, AndroidSharp, Favorite, History, Home, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube as YouTubeIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
@@ -19,6 +19,7 @@ import Cookies from 'js-cookie';
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
 const list = [
+    {text: 'Home', icon: <Home/>},
     {text: 'Favorites', icon: <Favorite/>},
     {text: 'History', icon: <History/>},
     {text: 'Playlists', icon: <PlaylistPlaySharp/>}
@@ -112,7 +113,7 @@ export default function Navbar() {
         {!isSmallScreen && <Link to='/' style={{textDecoration: 'none'}}><Button variant='text' color='success'><YouTubeIcon /><Typography sx={{textShadow: '1px 1px 2px  white'}} >BlueZack</Typography></Button></Link>}
             {isSmallScreen && !loginSignup &&
             <IconButton
-            onClick={toggleDrawer}
+            onClick={()=>setIsDrawerOpen(true)}
             edge='start' color='inherit'
             aria-label='menu' sx={{mr: 2}}
             ><Menu/></IconButton>}
@@ -196,13 +197,13 @@ export default function Navbar() {
             paddingBottom: 20
         }
     
-    }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={toggleDrawer}>
+    }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={()=>setIsDrawerOpen(false)}>
         <Container
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '110%', marginLeft: '-10px'}}>
                 
                {list.map(item=>(
                 
-                   <Button key={item.text} onClick={user ? null : handleOpen}  component={user ? NavLink : Button} to={`/${item.text === 'Watch Later' ? 'watch-later' : item.text.toLowerCase()}`} 
+                   <Button key={item.text} onClick={user ? null : handleOpen}  component={user ? NavLink : Button} to={`/${item.text === 'Home' ? '' : item.text.toLowerCase()}`} 
                    sx={{mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', backgroundColor: theme.palette.navBackground.primary}}
                    startIcon={item.icon}
                    variant='outlined' color='primary'>{item.text}</Button>

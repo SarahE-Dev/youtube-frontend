@@ -11,7 +11,7 @@ import getChannelAvatar from '../helpers/getAvatar'
 import { Add, Comment, ExpandMoreOutlined, Favorite, FavoriteBorderOutlined } from '@mui/icons-material'
 import {styled} from '@mui/material/styles'
 import { useDispatch } from 'react-redux'
-import { addComment, addFavorite, addHistory, addPlaylist, removeFavorite } from '../features/user/userSlice'
+import { addComment, addFavorite, addHistory, addPlaylist, addVideoToPlaylist, removeFavorite } from '../features/user/userSlice'
 import Axios from '../helpers/Axios'
 import { returnVideObject } from '../helpers/videoReturn'
 import { setVideos } from '../features/video/videoSlice'
@@ -57,7 +57,7 @@ export default function PlayVideo({children, ...props}) {
   const [playlistAddOpen, setPlaylistAddOpen] = useState(false)
   const [playlistInput, setPlaylistInput] = useState('')
   const [playlistSelection, setPlaylistSelection] = useState('')
-  console.log(location.state)
+  
   
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -65,26 +65,20 @@ export default function PlayVideo({children, ...props}) {
 
   async function getVideoComments(){
     const response = await Axios.get(`/get-video-comments/${videoToPlay.videoId}`)
-    console.log(response.data.comments);
-    setComments([...comments, response.data.comments])
+    setComments(response.data.comments)
   }
 
   
 
   const addToFavorites = async () => {
     const response = await Axios.post('/add-favorite', videoToPlay)
-    console.log(response);
     dispatch(addFavorite(response.data.video))
   }
 
   const removeFavoriteFunc = async (id) => {
-    console.log(user);
      const remove = await Axios.post('/remove-favorite', {user: user._id, videoId: id})
-     console.log(remove.data)
      dispatch(removeFavorite(id))
-
-
-  }
+}
 
   const handleHeartClick = () => {
     user && !user.favorites.some(i=>i.videoId === videoToPlay.videoId) ? addToFavorites() : !user ? handleClickOpen() : user && user.favorites.some(i=>i.videoId === videoToPlay.videoId) ? removeFavoriteFunc(videoToPlay.videoId) : null
@@ -95,24 +89,26 @@ export default function PlayVideo({children, ...props}) {
 
   }
 
-  const addVideoToPlaylist = async () => {
+  const addVideoToPlaylistFunction = async () => {
     const response = await Axios.post('/add-to-playlist', videoToPlay)
     console.log(response);
+    let playlistId = response.data.playlist._id
+    let video = response.data.video
+    dispatch(addVideoToPlaylist({playlistId, video}))
   }
   
 
   useEffect(() => {
     
     if(!video?.videoId && video){
-    const videoObject = returnVideObject(video, user?._id, location.state.channelImage)
+    const videoObject = returnVideObject(video, user?._id, video?.channelImage)
     setVideoToPlay(videoObject)
     
     }else{
       setVideoToPlay(video)
       
     }
-    console.log(location);
-  }, [location])
+  }, [location.state.video])
 
   useEffect(() => {
     if(videoToPlay?.videoId){
@@ -122,7 +118,6 @@ export default function PlayVideo({children, ...props}) {
     if(!videoToPlay){
       setVideoToPlay(JSON.parse(localStorage.getItem('lastVideoPlayed')))
     }
-    console.log(videoToPlay);
   }, [videoToPlay])
   
   
@@ -171,6 +166,7 @@ export default function PlayVideo({children, ...props}) {
     const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, ...videoToPlay})
     console.log(response);
     setPlaylistAddOpen(false)
+    dispatch(addVideoToPlaylist({playlistId: playlistSelection, video: videoToPlay}))
     
   }
   
@@ -182,7 +178,7 @@ export default function PlayVideo({children, ...props}) {
       if(video?.videoId){
           videoObject = video
       }else{
-        videoObject = returnVideObject(video, user._id) 
+        videoObject = returnVideObject(video, user._id, video?.channelImage) 
         async function addToHistory(){
           const history = await Axios.post('/add-to-history', videoObject)
           dispatch(addHistory(history.data.video))
@@ -198,7 +194,7 @@ export default function PlayVideo({children, ...props}) {
   
   }, [location])
   
-  
+
 
   async function getVideoDetails(videoId){
     const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`)
@@ -274,7 +270,7 @@ export default function PlayVideo({children, ...props}) {
                 <TextField  value={commentInput} onChange={(e)=>setCommentInput(e.target.value)} sx={{ flexGrow: 1, '& .MuiOutlinedInput-root': {borderRadius: 10}}} label='Add a comment' />
                 <Fab onClick={handleCommentSubmit} type='submit' sx={{ml: 1}} color='white' size='small'><Add /></Fab>
               </form>
-              <List sx={{overflowY: 'scroll', height: '22vh'}}>
+              <List sx={{overflowY: 'scroll', height: 'fit-content'}}>
                 {user && user.comments.toReversed().map((item, i)=>(
                     <>
                   <ListItem onClick={()=>{item.user === user._id ? setOpenCommentDialog(true) : ''}} key={i}>
@@ -303,10 +299,10 @@ export default function PlayVideo({children, ...props}) {
         </Accordion>
       </div>
         {useMediaQuery(theme.breakpoints.up('sm')) ? null : (
-          <ImageList cols={1} sx={{overflowY: 'scroll', height: '100vh'}}>
+          <ImageList cols={1} sx={{overflowY: 'scroll', height: '200vh'}}>
           {videos?.map((item, i)=>(
             item?.id?.kind === 'youtube#channel' || item?.id?.kind === 'youtube#playlist' ? null:
-            <Link state={{video: item, channelImage: channelImage}} to={`/videos/${item.id.videoId ? item.id.videoId : item.id}`}>
+            <Link state={{video: item, channelImage: item.channelImage}} to={`/videos/${item.id.videoId ? item.id.videoId : item.id}`}>
             <ImageListItem sx={{width: '100%', mb: 1, ml: -.26}} key={item.snippet.title}>
               <img src={item.snippet.thumbnails.medium.url} alt={item.snippet.title} />
               <ImageListItemBar
@@ -322,7 +318,7 @@ export default function PlayVideo({children, ...props}) {
           }
           {history?.map((item, i)=>(
             
-            <Link state={{video: item, channelImage: channelImage}} to={`/videos/${item.videoId ? item.videoId : item.id}`}>
+            <Link state={{video: item, channelImage: item.channelImage}} to={`/videos/${item.videoId ? item.videoId : item.id}`}>
             <ImageListItem sx={{width: '100%', mb: 1, ml: -.26}} key={item.title}>
               <img src={item.thumbnailUrl} alt={item.title} />
               <ImageListItemBar

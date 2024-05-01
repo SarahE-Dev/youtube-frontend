@@ -5,14 +5,16 @@ import { useParams } from 'react-router'
 import Video from './Video'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
-import { setVideos as setMainVideos, setChannelImageOnVideo } from '../features/video/videoSlice'
-
+import { setVideos as setMainVideos, setChannelImageOnVideo, setVideos, getChannelImage } from '../features/video/videoSlice'
+import { useSelector } from 'react-redux'
+import getChannelAvatar from '../helpers/getAvatar'
 
 
 export default function VideoShell({children}) {
     const categoryID = useParams().categoryID
     const categoryTitle = useParams().categoryTitle
-    const [videos, setVideos] = useState([])
+    const videos = useSelector(state=>state.videos.videos)
+    // const [videos, setVideos] = useState([])
     const dispatch = useDispatch()
     useEffect(() => {
         const fetchData = async () => {
@@ -27,8 +29,8 @@ export default function VideoShell({children}) {
                     }
                 });
                 console.log(response.data.items);
-                setVideos(response.data.items);
-                dispatch(setMainVideos(response.data.items))
+                dispatch(setVideos(response.data.items)) 
+
 
             } catch (error) {
                 console.log(error); 
@@ -43,7 +45,7 @@ export default function VideoShell({children}) {
         <Grid alignItems='center' spacing={{xs: 4, sm: 4, md: 5, lg: 6}} wrap='wrap' container>
             {videos?.map(video=>(
                 
-                video.id.kind === 'youtube#channel' ? null :
+                video.id.kind === 'youtube#channel' || video.id.kind === 'youtube#playlist' ? null :
                 <Video key={video.snippet.title} video={video} />
 
             ))}

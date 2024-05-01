@@ -6,6 +6,7 @@ import { DeleteForever, DeleteOutline } from '@mui/icons-material'
 import Axios from '../helpers/Axios'
 import { useDispatch } from 'react-redux'
 import { removeFavorite } from '../features/user/userSlice'
+import { Link } from 'react-router-dom'
 export default function Favorites() {
   const dispatch = useDispatch()
   const user = useSelector(state=>state.user.user)
@@ -22,6 +23,7 @@ export default function Favorites() {
     <Container sx={{background: theme.palette.gradientBackground.primary, height: '100vh', paddingTop: '90px',overflow: 'scroll', paddingBottom: 3}} maxWidth={false}>
       <ImageList>
         {user?.favorites?.map(favorite=>(
+          <Link to={`/videos/${favorite.videoId}`} state={{video: favorite, channelImage: favorite.channelImage, favorites: user.favorites}} >
             <ImageListItem key={favorite.id}>
               <img src={favorite.thumbnailUrl} alt={favorite.title} />
               <ImageListItemBar position='top' sx={{
@@ -31,9 +33,11 @@ export default function Favorites() {
               }} actionIcon={<DeleteOutline onClick={()=>removeFavoriteFunc(favorite.videoId)} />} />
               <ImageListItemBar position='bottom'  title={favorite.title} subtitle={favorite.channelTitle} actionIcon={<Avatar  src={favorite.channelImage} />} />
             </ImageListItem>
+          </Link>
         ))  
         }
       </ImageList>
+      
     </Container>
   )
 }
