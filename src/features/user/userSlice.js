@@ -19,7 +19,7 @@ const userSlice = createSlice({
             state.user.favorites = state.user.favorites.filter(favorite => favorite.videoId !== action.payload)
         },
         addPlaylist: (state, action) => {
-            state.user.playlists.push(action.payload)
+            state.user.playlists = [...state.user.playlists, action.payload]
         },
         removePlaylist: (state, action) => {
             state.user.playlists = state.user.playlists.filter(playlist => playlist !== action.payload)

@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Avatar, Container, Grid, Stack, Typography, ImageList, ImageListItem, ImageListItemBar, Card, CardContent, CardHeader, Accordion, AccordionDetails, Rating, IconButton, Fab, AccordionSummary, Button, TextField, Input, Slide, Dialog, DialogActions, DialogContent, DialogTitle, Skeleton, List, ListItem, ListItemSecondaryAction, ListItemAvatar, ListItemText, FormControl, Select, InputLabel, MenuItem } from '@mui/material'
+import { Avatar, Container, Grid, Stack, Typography, ImageList, ImageListItem, ImageListItemBar, Card, CardContent, CardHeader, Accordion, AccordionDetails, Rating, IconButton, Fab, AccordionSummary, Button, TextField, Input, Slide, Dialog, DialogActions, DialogContent, DialogTitle, Skeleton, List, ListItem, ListItemSecondaryAction, ListItemAvatar, ListItemText, FormControl, Select, InputLabel, MenuItem, DialogContentText } from '@mui/material'
 import YouTube from 'react-youtube'
 import { useLocation } from 'react-router'
 import {useMediaQuery} from '@mui/material'
@@ -11,7 +11,7 @@ import getChannelAvatar from '../helpers/getAvatar'
 import { Add, Comment, ExpandMoreOutlined, Favorite, FavoriteBorderOutlined } from '@mui/icons-material'
 import {styled} from '@mui/material/styles'
 import { useDispatch } from 'react-redux'
-import { addComment, addFavorite, addHistory, addPlaylist } from '../features/user/userSlice'
+import { addComment, addFavorite, addHistory, addPlaylist, removeFavorite } from '../features/user/userSlice'
 import Axios from '../helpers/Axios'
 import { returnVideObject } from '../helpers/videoReturn'
 import { setVideos } from '../features/video/videoSlice'
@@ -56,7 +56,8 @@ export default function PlayVideo({children, ...props}) {
   const [history, setHistory] = useState([])
   const [playlistAddOpen, setPlaylistAddOpen] = useState(false)
   const [playlistInput, setPlaylistInput] = useState('')
-
+  const [playlistSelection, setPlaylistSelection] = useState('')
+  console.log(location.state)
   
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -76,8 +77,17 @@ export default function PlayVideo({children, ...props}) {
     dispatch(addFavorite(response.data.video))
   }
 
+  const removeFavoriteFunc = async (id) => {
+    console.log(user);
+     const remove = await Axios.post('/remove-favorite', {user: user._id, videoId: id})
+     console.log(remove.data)
+     dispatch(removeFavorite(id))
+
+
+  }
+
   const handleHeartClick = () => {
-    user && !user.favorites.some(i=>i.videoId === videoToPlay.videoId) ? addToFavorites() : !user ? handleClickOpen() : null
+    user && !user.favorites.some(i=>i.videoId === videoToPlay.videoId) ? addToFavorites() : !user ? handleClickOpen() : user && user.favorites.some(i=>i.videoId === videoToPlay.videoId) ? removeFavoriteFunc(videoToPlay.videoId) : null
   }
 
   const handlePlaylistClick = () => {
@@ -94,7 +104,7 @@ export default function PlayVideo({children, ...props}) {
   useEffect(() => {
     
     if(!video?.videoId && video){
-    const videoObject = returnVideObject(video, user?._id)
+    const videoObject = returnVideObject(video, user?._id, location.state.channelImage)
     setVideoToPlay(videoObject)
     
     }else{
@@ -126,6 +136,7 @@ export default function PlayVideo({children, ...props}) {
     if(user && commentInput){
       const comment = await Axios.post('/add-comment', {content: commentInput, video: videoToPlay.videoId, user: user._id})
       console.log(comment);
+      setPlaylistAddOpen(false)
       dispatch(addComment(comment.data.comment))
       setCommentInput('')
     }
@@ -145,10 +156,22 @@ export default function PlayVideo({children, ...props}) {
   }, [])
 
   
-  const addNewPlaylist = async () => {
+  const addNewPlaylist = async (e) => {
+    e.preventDefault()
     const response = await Axios.post('/add-playlist', {name: playlistInput, user: user._id})
     console.log(response);
+    setPlaylistInput('')
     dispatch(addPlaylist(response.data.playlist))
+  }
+
+  
+
+  const handleAddVideoToPlaylist=async(e)=>{
+    e.preventDefault()
+    const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, ...videoToPlay})
+    console.log(response);
+    setPlaylistAddOpen(false)
+    
   }
   
   
@@ -190,27 +213,28 @@ export default function PlayVideo({children, ...props}) {
       <div style={{display: 'flex', flexDirection: 'column'}} className={`${isSmallScreen ? 'small-container' : ''} ${isMediumScreen ? 'medium-container' : ''} ${isLargeScreen ? 'large-container' : ''} ${isXLargeScreen ? 'xlarge-container' : ''}`}>
         
       {videoToPlay?.videoId ? <YouTube videoId={videoToPlay.videoId} opts={{width: '100%', height: '100%'}} /> : <Skeleton variant='rect' width='100%' height='100%' />}
-      <Dialog TransitionComponent={Transition} open={playlistAddOpen} onClose={()=>setPlaylistAddOpen(false)} sx={{textAlign: 'center'}}>
+      <Dialog PaperProps={{component: 'form', sx: {padding: '0px 20px'}}} TransitionComponent={Transition} open={playlistAddOpen} onClose={()=>setPlaylistAddOpen(false)} sx={{textAlign: 'center'}}>
                 <DialogTitle>Add to Playlist</DialogTitle>
-                <DialogContent>
-                  <form onSubmit={addNewPlaylist}>
+                <DialogContentText>
+                <form style={{display: 'flex', flexDirection: 'column'}} onSubmit={addNewPlaylist}>
                     <TextField value={playlistInput} onChange={(e)=>setPlaylistInput(e.target.value)} label='Playlist Name' />
                     <Button type='submit'>Add</Button>
                   </form>
                   <form>
                     <FormControl fullWidth>
                       <InputLabel>Select Playlist</InputLabel>
-                      <Select>
+                      <Select onChange={(e)=>setPlaylistSelection(e.target.value)}>
                         {user?.playlists.map((item, i)=>(
-                          <MenuItem key={i} value={item.name}>{item.name}</MenuItem>
+                          <MenuItem key={i} value={item._id}>{item.name}</MenuItem>
                         ))  
                         }
                       </Select>
                     </FormControl>
                   </form>
-                </DialogContent>
+                </DialogContentText>
                 <DialogActions>
                     <Button onClick={()=>setPlaylistAddOpen(false)}>Cancel</Button>
+                    <Button onClick={handleAddVideoToPlaylist}>Add</Button>
                 </DialogActions>
             </Dialog>
       

@@ -11,12 +11,7 @@ import axios from 'axios';
 import Layout from './Layout';
 import { checkAuthUser } from './hooks/checkAuthUser';
 export default function App() {
-  const {checkIfCookieExists, loginUser} = checkAuthUser()
-  useEffect(() => {
-    if(checkIfCookieExists()){
-      loginUser()
-    }
-  }, [])
+  
   
   const fetchVideoCategories = async () => {
     const response = await axios.get('https://www.googleapis.com/youtube/v3/videoCategories', {

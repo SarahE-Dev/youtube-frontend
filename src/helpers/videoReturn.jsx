@@ -1,4 +1,4 @@
-export const returnVideObject = (video, id) => {
+export const returnVideObject = (video, id, channelImage) => {
     return {
         videoId: video.id.videoId ? video.id.videoId : video.id,
         title: video.snippet.title,
@@ -7,7 +7,7 @@ export const returnVideObject = (video, id) => {
         publishedAt: video.snippet.publishedAt,
         channelTitle: video.snippet.channelTitle,
         channelId: video.snippet.channelId,
-        channelImage: video.channelImage,
+        channelImage: channelImage,
         user: id
     }
 

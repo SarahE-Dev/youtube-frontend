@@ -9,9 +9,9 @@ import { removeFavorite } from '../features/user/userSlice'
 export default function Favorites() {
   const dispatch = useDispatch()
   const user = useSelector(state=>state.user.user)
-
   const removeFavoriteFunc = async (id) => {
-     const remove = await Axios.delete('/remove-favorite', {user: user._id, videoId: id})
+    console.log(user);
+     const remove = await Axios.post('/remove-favorite', {user: user._id, videoId: id})
      console.log(remove.data)
      dispatch(removeFavorite(id))
 
