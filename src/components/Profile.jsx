@@ -1,17 +1,26 @@
 import React from 'react'
-import { Container, TextField, Button, MenuItem, Avatar, FormControl, FormHelperText } from '@mui/material'
+import { Container, TextField, Button, MenuItem, Avatar, FormControl, FormHelperText, ButtonGroup, Typography } from '@mui/material'
 import { useState } from 'react'
 import { useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import validator from 'validator'
+import Axios from '../helpers/Axios'
+import { login } from '../features/user/userSlice'
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
+import { checkAuthUser } from '../hooks/checkAuthUser'
+import { Navigate } from 'react-router'
+import { avatarPaths } from './GetUserInfo'
 
 
 export default function Profile() {
   const user = useSelector(state=>state.user.user)
   const dispatch = useDispatch()
   const theme = useTheme()
+  const {checkIfCookieExists}= checkAuthUser()
+  const [isEditable, setIsEditable] = useState(false)
   const [firstName, setFirstName] = useState('');
   const [firstNameError, setFirstNameError] = useState('');
   const [lastName, setLastName] = useState('');
@@ -23,6 +32,7 @@ export default function Profile() {
   const [avatar, setAvatar] = useState('')
   const landscape = useMediaQuery('(orientation : landscape)')
   const isMedium = useMediaQuery('(max-width: 930px)')
+  const hasSidebar = useMediaQuery(theme.breakpoints.up('md'))
   const handleFirstNameChange=(text)=>{
           setFirstName(text)
           if(!validator.isAlpha(text, 'en-US')){
@@ -31,6 +41,46 @@ export default function Profile() {
             setFirstNameError('')
           }
   }
+  
+  useEffect(() => {
+    setFirstName(user?.firstName)
+    setLastName(user?.lastName)
+    setUsername(user?.username)
+    setEmail(user?.email)
+    setAvatar(user?.avatar)
+  }, [user])
+  const updateUserFunction=async(e)=>{
+    e.preventDefault()
+    if(firstNameError === '' && lastNameError === '' && usernameError === '' && emailError === ''){
+      const objectToSend = {}
+      if(username !== user?.username){
+        objectToSend.username = username
+      }
+      if(email !== user?.email){
+        objectToSend.email = email
+      }
+      if(lastName !== user?.lastName){
+        objectToSend.lastName = lastName
+      }
+      if(firstName !== user?.firstName){
+        objectToSend.firstName = firstName
+      }
+      if(Object.keys(objectToSend).length === 0){
+        setIsEditable(false)
+        return
+      }
+      const updatedUser = await Axios.post('/update-user', {...objectToSend, user: user._id})
+      console.log(updatedUser);
+      if(updatedUser.data.user){
+        dispatch(login(updatedUser.data.user))
+        setIsEditable(false)
+        
+    }else{
+
+      setIsEditable(false)
+    }
+  }
+}
   const handleLastNameChange=(text)=>{
           setLastName(text)
           if(!validator.isAlpha(text, 'en-US')){
@@ -57,12 +107,13 @@ export default function Profile() {
   } 
 
   return (
-    <Container sx={{height: '100vh', width: '100vw', background: theme.palette.gradientBackground.primary, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll'}}>
+    <Container maxWidth='xl' sx={{height: '100vh', background: theme.palette.gradientBackground.primary, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll'}}>
+      {isEditable &&
     <Container sx={{textAlign: 'center', paddingTop: landscape && isMedium ? 25 : 10}} maxWidth='md'>
-            <form >
+            <form onSubmit={updateUserFunction}>
               <div style={{display: 'flex'}}>
                 <FormControl sx={{m: 1, flexGrow: 1}}>
-                <TextField  InputProps={{disabled: true}}  onChange={(e)=>handleFirstNameChange(e.target.value)} required  color='secondary' type='text' label='First Name' value={user?.firstName} variant='filled' />
+                <TextField   onChange={(e)=>handleFirstNameChange(e.target.value)} required  color='secondary' type='text' label='First Name' value={firstName} variant='filled' />
                 <FormHelperText error>{firstNameError}</FormHelperText>
                 </FormControl>
                 <FormControl sx={{m: 1, flexGrow: 1}}>
@@ -86,24 +137,37 @@ export default function Profile() {
               <div style={{display: 'flex', justifyContent: 'center', margin: 7}}>
       
                 <TextField value={avatar} color='secondary' select label='Select your avatar' onChange={(e)=>setAvatar(e.target.value)} sx={{m: 1, width: '50%'}} variant='filled'>
-                  <MenuItem value='1'>
-                  <Avatar />
-                  </MenuItem>
-                  <MenuItem value='2'>
-                  <Avatar />
-                  </MenuItem>
-                  <MenuItem value='3'>
-                  <Avatar />
-                  </MenuItem>
+                  {avatarPaths.map((path, index)=>{
+                    return <MenuItem key={index} value={path}>
+                      <Avatar src={path} sx
+                      ={{width: 50, height: 50}} />
+                    </MenuItem>
+                  })}
                 </TextField>
               </div>
               <div style={{display: 'flex', justifyContent: 'center', margin: 7}}>
-                <Button size='large' type='submit' variant='outlined' sx={{width: '50%', m: 3, borderRadius: 15}}>Submit</Button>
+                <ButtonGroup>
+                  <Button size='large' onClick={()=>setIsEditable(false)} 
+                  color='secondary'
+                  variant='outlined' sx={{ borderRadius: 15}}>Cancel</Button>
+                  <Button size='large' type='submit' variant='outlined' sx={{ borderRadius: 15}}>Submit</Button>
+                </ButtonGroup>
+                
               </div>
               
             </form>
             </Container>
+}
 
+    {!isEditable &&
+    <Container sx={{textAlign: 'center', paddingTop: landscape && isMedium ? 25 : 10, display: 'flex', flexDirection: 'column'}} >
+      <Avatar sx={{width: 100, height: 100, m: 2}} src={user?.avatar} />
+      <Typography variant='h4'>{user?.firstName} {user?.lastName}</Typography>
+      <Typography variant='h6'>{user?.username}</Typography>
+      <Typography variant='h6'>{user?.email}</Typography>
+      <Button onClick={()=>setIsEditable(true)} variant='outlined' sx={{m: 2}}>Edit</Button>
+    </Container>
+    }
     </Container>
   )
 }

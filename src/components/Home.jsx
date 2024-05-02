@@ -27,7 +27,7 @@ const requestUrl = `${apiUrl}?${queryParams}`;
 export default function Home() {
     const user = useSelector(state=>state.user.user)
     const videos = useSelector(state=>state.videos.videos) 
-    const testVideos = JSON.parse(localStorage.getItem('searchedVideos'))
+    const searchedVideos = JSON.parse(localStorage.getItem('searchedVideos'))
     const isSmallScreen = useMediaQuery(theme=>theme.breakpoints.down('md'))
     const dispatch = useDispatch()
     const theme = useTheme()
@@ -35,6 +35,10 @@ export default function Home() {
         
         const fetchVideos = async () => {
           dispatch(setVideos([]))
+          if(searchedVideos) {
+            dispatch(setVideos(searchedVideos))
+            return
+          }
             const res = await fetch(requestUrl)
             const data = await res.json()
             dispatch(setVideos(data.items))

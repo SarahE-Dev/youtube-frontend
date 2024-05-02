@@ -28,7 +28,6 @@ export default function VideoShell({children}) {
                         key: import.meta.env.VITE_YOUTUBE_API_KEY
                     }
                 });
-                console.log(response.data.items);
                 dispatch(setVideos(response.data.items)) 
 
 

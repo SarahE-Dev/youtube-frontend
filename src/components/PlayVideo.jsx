@@ -16,8 +16,7 @@ import Axios from '../helpers/Axios'
 import { returnVideObject } from '../helpers/videoReturn'
 import { setVideos } from '../features/video/videoSlice'
 import { useParams } from 'react-router'
-
-
+import {alien, alien2, bird, bobtail, bulldog, bunny, cat, cat1, eva, husky, husky2, koala, lab, othercat, owl, panda2, puppy, robotwhite, sealion, wallrus, whitecat } from '../assets'
 
 const StyledRating = styled(Rating)({
   '& .MuiRating-iconFilled': {
@@ -27,6 +26,7 @@ const StyledRating = styled(Rating)({
     color: '#ff3d47',
   },
 });
+
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -56,8 +56,10 @@ export default function PlayVideo({children, ...props}) {
   const [history, setHistory] = useState([])
   const [playlistAddOpen, setPlaylistAddOpen] = useState(false)
   const [playlistInput, setPlaylistInput] = useState('')
+  const [commentSelected, setCommentSelected] = useState('')
   const [playlistSelection, setPlaylistSelection] = useState('')
-  
+  const [commentSelectedValue, setCommentSelectedValue] = useState('')
+  const [commentEditInput, setCommentEditInput] = useState('')
   
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -71,7 +73,7 @@ export default function PlayVideo({children, ...props}) {
   
 
   const addToFavorites = async () => {
-    const response = await Axios.post('/add-favorite', videoToPlay)
+    const response = await Axios.post('/add-favorite', {...videoToPlay, user: user?._id})
     dispatch(addFavorite(response.data.video))
   }
 
@@ -129,10 +131,11 @@ export default function PlayVideo({children, ...props}) {
       return
     }
     if(user && commentInput){
-      const comment = await Axios.post('/add-comment', {content: commentInput, video: videoToPlay.videoId, user: user._id})
+      const comment = await Axios.post('/add-comment', {content: commentInput, video: videoToPlay.videoId, user: user._id, avatar: user.avatar})
       console.log(comment);
       setPlaylistAddOpen(false)
       dispatch(addComment(comment.data.comment))
+      getVideoComments()
       setCommentInput('')
     }
     
@@ -178,7 +181,7 @@ export default function PlayVideo({children, ...props}) {
       if(video?.videoId){
           videoObject = video
       }else{
-        videoObject = returnVideObject(video, user._id, video?.channelImage) 
+        videoObject = returnVideObject(video, user._id, video?.channelImage || location.state.channelImage) 
         async function addToHistory(){
           const history = await Axios.post('/add-to-history', videoObject)
           dispatch(addHistory(history.data.video))
@@ -193,13 +196,25 @@ export default function PlayVideo({children, ...props}) {
   
   
   }, [location])
-  
+
+  const deleteCommentFunc=async(id)=>{
+    const deleteComment = await Axios.post('/delete-comment', {user: user._id, comment: commentSelected})
+    console.log(deleteComment);
+    getVideoComments()
+  }
+
+  const editCommentFunc=async(id)=>{
+    const editedComment = await Axios.post('/edit-comment', {comment: commentSelected, content: commentSelectedValue})
+    console.log(editedComment);
+    getVideoComments()
+    setShowEditInput(false)
+    setOpenCommentDialog(false)
+  }
 
 
   async function getVideoDetails(videoId){
     const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`)
     const data = await response.json()
-    return data.items[0]
     console.log(data);
   }
   
@@ -271,25 +286,29 @@ export default function PlayVideo({children, ...props}) {
                 <Fab onClick={handleCommentSubmit} type='submit' sx={{ml: 1}} color='white' size='small'><Add /></Fab>
               </form>
               <List sx={{overflowY: 'scroll', height: 'fit-content'}}>
-                {user && user.comments.toReversed().map((item, i)=>(
+                {user && comments.toReversed().map((item, i)=>(
                     <>
-                  <ListItem onClick={()=>{item.user === user._id ? setOpenCommentDialog(true) : ''}} key={i}>
+                    
+                  <ListItem onClick={()=>{item.user._id === user._id ? setOpenCommentDialog(true) : ''; setCommentSelected(item._id); setCommentSelectedValue(item.content)}} key={i}>
                     <ListItemAvatar>
-                      <Avatar />
+                      <Avatar src={item?.user?.avatar.split('src')[1]} alt={item?.user?.username} />
                     </ListItemAvatar>
-                    <ListItemText primary={item.content} />
+                    <ListItemText primary={item?.content} />
                     <ListItemSecondaryAction>
                       <IconButton><Comment /></IconButton>
+                      {item?.user?.username}
                     </ListItemSecondaryAction>
+                    
                   </ListItem>
                   <Dialog TransitionComponent={Transition} open={openCommentDialog} onClose={()=>{setOpenCommentDialog(false); setShowEditInput(false)}} sx={{textAlign: 'center'}}>
         <DialogTitle>Edit or Delete</DialogTitle>
         <DialogContent>
-          {showEditInput ? <Input value={item.comment} onChange={(e)=>setCommentInput(e.target.value)} /> : ''}
+          {showEditInput ? <Input value={commentSelectedValue} onChange={(e)=>setCommentSelectedValue(e.target.value)} /> : ''}
         </DialogContent>
         <DialogActions sx={{display: 'flex', justifyContent: 'center'}}>
-        <Button onClick={()=>setShowEditInput(true)}>Edit</Button>
-          <Button onClick={()=>setOpenCommentDialog(false)} color='secondary'>Delete</Button>
+          {showEditInput ? <><Button color='secondary' onClick={()=>setShowEditInput(false)}>Cancel</Button><Button onClick={editCommentFunc}>Save</Button></> : <> <Button onClick={()=>setShowEditInput(true)}>Edit</Button><Button onClick={()=>{setOpenCommentDialog(false); deleteCommentFunc(item._id)}} color='secondary'>Delete</Button></>}
+        
+          
         </DialogActions>
       </Dialog>
                   </>

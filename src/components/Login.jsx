@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Stack, TextField, Button, Divider, Typography } from '@mui/material'
+import { Container, Stack, TextField, Button, Divider, Typography, Avatar } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { useMediaQuery } from '@mui/material'
 import { useState } from 'react'
@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux'
 import { login } from '../features/user/userSlice'
 import theme from '../theme'
 import { checkAuthUser } from '../hooks/checkAuthUser'
+import BlueZack from './BlueZack'
 
 
 export default function Login() {
@@ -36,6 +37,11 @@ export default function Login() {
   return (
     <Container maxWidth='xl' sx={{height: '100vh', background: theme.palette.gradientBackground.primary, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll', pt: 2}}>
     <Container sx={{textAlign: 'center', pt: landcape && isMedium ? 10 : 5}} maxWidth='xs'>
+
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 10, marginTop: 10}}><BlueZack/>
+            <Typography className='bluezack'  variant='h4'>BlueZack</Typography>
+            </div>
+            
             <form onSubmit={handleSubmit} style={{}}>
                 <Stack spacing={3}>
                     <TextField 

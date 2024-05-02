@@ -10,6 +10,32 @@ import Axios from '../helpers/Axios'
 import { checkAuthUser } from '../hooks/checkAuthUser'
 import { Navigate } from 'react-router'
 
+export const avatarPaths = [
+  'src/assets/images/alien.png',
+  'src/assets/images/alien2.png',
+  'src/assets/images/bird.jpg',
+  'src/assets/images/bobtail.png',
+  'src/assets/images/bulldog.png',
+  'src/assets/images/bunny.png',
+  'src/assets/images/cat.jpg',
+  'src/assets/images/cat1.png',
+  'src/assets/images/eva.jpg',
+  'src/assets/images/husky.png',
+  'src/assets/images/koala.png',
+  'src/assets/images/husky2.png',
+  'src/assets/images/lab.png',
+  'src/assets/images/othercat.png',
+  'src/assets/images/owl.jpg',
+  'src/assets/images/panda2.png',
+  'src/assets/images/puppy.jpg',
+  'src/assets/images/sloth.jpg',
+  'src/assets/images/wallrus.png',
+  'src/assets/images/whitecat.png',
+  'src/assets/images/sealion.png',
+  'src/assets/images/robotwhite.jpg',
+]
+
+
 export default function GetUserInfo() {
     const {pathname} = useLocation()
     const {checkIfCookieExists, loginUser} = checkAuthUser()
@@ -88,7 +114,8 @@ export default function GetUserInfo() {
         lastName: lastName,
         username: username,
         email: email,
-        password: password
+        password: password,
+        avatar: avatar
       }
       const user = await Axios.post('/signup', data)
       console.log(user);
@@ -133,16 +160,12 @@ export default function GetUserInfo() {
               </div>
               <div style={{display: 'flex', justifyContent: 'center', margin: 7}}>
       
-                <TextField value={avatar} color='secondary' select label='Select your avatar' onChange={(e)=>setAvatar(e.target.value)} sx={{m: 1, width: '50%'}} variant='filled'>
-                  <MenuItem value='1'>
-                  <Avatar />
-                  </MenuItem>
-                  <MenuItem value='2'>
-                  <Avatar />
-                  </MenuItem>
-                  <MenuItem value='3'>
-                  <Avatar />
-                  </MenuItem>
+                <TextField required value={avatar} color='secondary' select label='Select your avatar' onChange={(e)=>setAvatar(e.target.value)} sx={{m: 1, width: '50%'}} variant='filled'>
+                  {avatarPaths.map((path, index)=>(
+                    <MenuItem key={index} value={path}>
+                      <Avatar src={path} sx={{width: 50, height: 50}} />
+                    </MenuItem>
+                  ))}
                 </TextField>
               </div>
               <div style={{display: 'flex', justifyContent: 'center', margin: 7}}>

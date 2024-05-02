@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux'
 import {useMediaQuery} from '@mui/material';
 import { removePlaylist, removeVideoFromPlaylist } from '../features/user/userSlice'
 import Axios from '../helpers/Axios'
+import { Link } from 'react-router-dom'
 export default function Playlists() {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch()
@@ -41,6 +42,7 @@ export default function Playlists() {
               <AccordionDetails sx={{display: 'flex', width: isSmallScreen ? '90vw' : '70vw', overflowX: 'scroll'}} >
                 {playlist.videos.map(video=>(
                   <div style={{padding: 10}}>
+                    
                     <ImageListItem  key={video.id}>
                       <img style={{width: 250, borderRadius: 15}} src={video.thumbnailUrl} alt={video.title} />
                       <ImageListItemBar position='top' actionIcon={<DeleteOutlineTwoTone onClick={()=>removeVideoFromPLaylistFunc(playlist._id, video.videoId)}  />} sx={{
@@ -49,9 +51,11 @@ export default function Playlists() {
                           'rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
                           borderTopRightRadius: 15, borderTopLeftRadius: 15
                       }} />
+                      <Link state={{video: video, channelImage: video.channelImage, playlist: playlist}} to={`/videos/${video.videoId}`}>
                       <ImageListItemBar position='bottom'  sx={{borderBottomRightRadius: 15, borderBottomLeftRadius: 15}} title={video.title} subtitle={video.channelTitle} actionIcon={<Avatar  src={video.channelImage} />} />
-
+                      </Link>
                     </ImageListItem>
+                    
                     </div>
                 ))}
               </AccordionDetails>

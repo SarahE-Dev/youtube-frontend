@@ -1,5 +1,5 @@
-import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, ButtonGroup, CircularProgress, Container, MenuList, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Slide, Fab, List, ListItemButton, ListItemText } from '@mui/material'
-import React, { useState } from 'react'
+import { AppBar, Toolbar, Button, IconButton, Box, Autocomplete, TextField, MenuItem, Menu as Menu2, Typography, Drawer, CircularProgress, Container, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Slide, Fab, Avatar, } from '@mui/material'
+import React, { useState, useEffect } from 'react'
 import {useMediaQuery, useTheme} from '@mui/material'
 import { AccountCircleOutlined, AndroidSharp, Favorite, History, Home, Login, Logout, Menu, MoreVert, Person, PersonAdd, PlaylistPlaySharp, SearchOutlined, WatchLater, YouTube as YouTubeIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
@@ -13,10 +13,17 @@ import { logout } from '../features/user/userSlice';
 import { useLocation } from 'react-router';
 import Axios from '../helpers/Axios';
 import Cookies from 'js-cookie';
-
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import CursorSvg from './CursorSvg';
+import { checkAuthUser } from '../hooks/checkAuthUser';
+import { Navigate } from 'react-router';
+import BlueZack from './BlueZack';
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
+const model = genAI.getGenerativeModel({model: 'gemini-pro'})
 
 const list = [
     {text: 'Home', icon: <Home/>},
@@ -31,7 +38,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 
 export default function Navbar() {
-    
+    const {checkIfCookieExists, loginUser} = checkAuthUser()
     const navigate = useNavigate()
     const user = useSelector(state=>state.user.user)
     const [anchorEl, setAnchorEl] = useState(null);
@@ -47,6 +54,48 @@ export default function Navbar() {
     const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
     const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
+    const [chatHistory, setChatHistory] = useState('')
+    const [prompt, setPrompt] = useState('')
+    const [answer, setAnswer] = useState('')
+    const [completedTyping, setCompletedTyping] = useState(true)
+    
+    async function run(e, t){
+        e.preventDefault()
+        
+        const chat = await model.startChat({prompt: 'be a friedly chat bot on a youtube app, your name is BlueZack'})
+        const res = await chat.sendMessage(prompt)
+        setPrompt('')
+        const response = await res.response
+        const text = response.text()
+        console.log(text)
+        
+        setChatHistory(text)
+      }
+      let interval;
+      useEffect(() => {
+        if(chatHistory.length === 0) return
+        setCompletedTyping(false)
+        console.log(chatHistory);
+        let i = 0;
+        const stringResponse = chatHistory
+        interval = setInterval(() => {
+          setAnswer(stringResponse.slice(0, i))
+          i++
+          const chatbox = document.getElementById('chat')
+          chatbox.scrollTop = chatbox.scrollHeight
+          if(i > stringResponse.length) {
+            clearInterval(interval)
+            setCompletedTyping(true)
+          }
+        }, 10)
+      }, [chatHistory])
+  
+      useEffect(()=>{
+        if(!bottomDrawerOpen){
+            clearInterval(interval)
+          setCompletedTyping(true)
+        }
+      }, [bottomDrawerOpen])
     const suggest = async(term) =>{
         const response = await axios(`https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=us&ds=yt&q=${term}`, {
             mode: 'no-cors',
@@ -110,7 +159,7 @@ export default function Navbar() {
     <AppBar sx={{backgroundColor: theme.palette.navBackground.primary, zIndex: 2000}} position='fixed'>
         
         <Toolbar >
-        {!isSmallScreen && <Link to='/' style={{textDecoration: 'none'}}><Button variant='text' color='success'><YouTubeIcon /><Typography sx={{textShadow: '1px 1px 2px  white'}} >BlueZack</Typography></Button></Link>}
+        {!isSmallScreen && <Link to='/' style={{textDecoration: 'none'}}><Button variant='text' color='success'><BlueZack/><Typography  className='bluezack' >BlueZack</Typography></Button></Link>}
             {isSmallScreen && !loginSignup &&
             <IconButton
             onClick={()=>setIsDrawerOpen(true)}
@@ -122,7 +171,7 @@ export default function Navbar() {
             <IconButton
             edge='start' color='white'
             aria-label='home' sx={{mr: 2}}
-            ><YouTubeIcon /></IconButton></Link>}
+            ><BlueZack/></IconButton></Link>}
                 <Box  sx={{flexGrow: 1,display: 'flex', justifyContent: 'center'}} onSubmit={handleSearchSubmit}>
                     <form style={{display: 'flex', width: '100%', maxWidth: 500}} onSubmit={handleSearchSubmit}>
                 <Autocomplete
@@ -146,26 +195,33 @@ export default function Navbar() {
                 <IconButton sx={{width: '10%'}} onClick={handleSearchSubmit} type='submit'><SearchOutlined/></IconButton>
                 </form>
                 </Box>
-                {isSmallScreen && <Fab color='primary' onClick={()=>setBottomDrawerOpen(true)} sx={{position: 'fixed', bottom: 30, left: 30}}><AndroidSharp color='success' /></Fab>}
+                {isSmallScreen && <Fab color='primary' onClick={()=>setBottomDrawerOpen(true)} sx={{position: 'fixed', bottom: 30, left: 30}}>
+                    <BlueZack />
+                    </Fab>}
                 <Drawer sx={{
           '& .MuiDrawer-paper': {
             backgroundColor: theme.palette.navBackground.primary,
-            height: '40vh'
+            height: '50vh',
+            ml: 1,
+            mr: 1
           },
         }} variant='temporary' anchor='bottom' open={bottomDrawerOpen} onClose={()=>setBottomDrawerOpen(false)}>
-                <List>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <AndroidSharp />
-                        </ListItemIcon>
-                        <ListItemText>Android</ListItemText>
-                    </ListItemButton>
-                </List>
+                <Typography id='chat'  sx={{textAlign: 'center', mt: 2, height: '33vh', overflow: 'auto', overflowAnchor: 'auto'}}>{answer}{!completedTyping && <CursorSvg />}</Typography>
+                <form onSubmit={run}>
+                <div style={{display: 'flex', justifyContent: 'center', marginLeft: 30}}>
+                    <TextField disabled={!completedTyping} value={prompt} onChange={(e)=>setPrompt(e.target.value)} />
+                    
+                    <Button sx={{mt: 1}} type='submit'>Send</Button>
+                    </div>
+                    
+                </form>
             </Drawer>
                
             {user && 
             <Box sx={{display: 'flex'}}>
-             <IconButton aria-controls='menu' aria-haspopup='true' edge='end' sx={{ml: 2}} onClick={(e)=>setAnchorEl(e.currentTarget)}><AccountCircleOutlined/></IconButton>
+             <IconButton aria-controls='menu' aria-haspopup='true' edge='end' sx={{ml: 2}} onClick={(e)=>setAnchorEl(e.currentTarget)}>
+                <Avatar src={user?.avatar} />
+             </IconButton>
                 
              <Menu2 sx={{mt: 7}} transformOrigin={{vertical: 'top', horizontal: 'right'}} anchorOrigin={{vertical: 'top', horizontal: 'right'}} id='menu'  open={Boolean(anchorEl)} onClose={()=>setAnchorEl(null)} keepMounted anchorEl={anchorEl}>
                 <MenuItem component={NavLink} to='/profile' onClick={()=>setAnchorEl(null)}><ListItemIcon><Person/></ListItemIcon>Profile</MenuItem>
@@ -194,13 +250,16 @@ export default function Navbar() {
             width: '200px',
             backgroundColor: theme.palette.navBackground.primary,
             paddingTop: '80px',
-            paddingBottom: 20
+            paddingBottom: 100
         }
     
     }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={()=>setIsDrawerOpen(false)}>
         <Container
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '110%', marginLeft: '-10px'}}>
-                
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 20}}>
+                    <BlueZack/>
+                    <Typography className='bluezack' variant='h4'>BlueZack</Typography>
+                </div>
                {list.map(item=>(
                 
                    <Button key={item.text} onClick={user ? null : handleOpen}  component={user ? NavLink : Button} to={`/${item.text === 'Home' ? '' : item.text.toLowerCase()}`} 

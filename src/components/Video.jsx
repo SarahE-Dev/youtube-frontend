@@ -17,7 +17,7 @@ export default function Video(props) {
             setAvatarSrc(res)
           dispatch(setChannelImageOnVideo({video, channelImage: res}))
         })
-    }, [video])
+    }, [])
     
   return (
     <Grid height='fit-content' xs={6} sm={4} md={4} lg={3} item>

@@ -9,11 +9,11 @@ import { useEffect } from 'react'
 export default function Layout({children}) {
     const { pathname} = useLocation()
     const {checkIfCookieExists, loginUser} = checkAuthUser()
-    useEffect(() => {
+    
     if(checkIfCookieExists()){
       loginUser()
     }
-  }, [])
+  
     const isSmallScreen = useMediaQuery(theme=>theme.breakpoints.down('md'))
     const noSidebar = pathname === '/login' || pathname === '/signup' || isSmallScreen
   return (

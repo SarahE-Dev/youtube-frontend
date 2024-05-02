@@ -86,6 +86,31 @@
   width: 50vw;
 }
 
+@keyframes flicker {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.cursor {
+  display: inline-block;
+  width: 1ch;
+  animation: flicker 0.5s infinite;
+  margin-bottom: 4px;
+}
+
+.bluezack {
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 
 
 
