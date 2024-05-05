@@ -38,6 +38,7 @@ export default function Login() {
         setPassword('')
         setUsername('')
         Cookies.set('youtube-jwt', user.data.token)
+        loginUser()
         navigate('/')
     }
   return (

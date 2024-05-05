@@ -131,6 +131,7 @@ export default function GetUserInfo() {
       setConfirmPassword('')
       setAvatar('')
       Cookies.set('youtube-jwt', user.data.token)
+      loginUser()
       navigate('/')
     }
 
