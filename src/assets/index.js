@@ -22,9 +22,6 @@ import wallrus from './images/wallrus.png'
 import whitecat from './images/whitecat.png'
 import sealion from './images/sealion.png'
 import robotwhite from './images/robotwhite.jpg'
-import sloth from './images/sloth.jpg'
-import wallrus from './images/wallrus.png'
-import whitecat from './images/whitecat.png'
 
 export  {
     alien,

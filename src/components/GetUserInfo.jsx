@@ -1,7 +1,7 @@
 import { Container, FormControl, FormControlLabel, Stack, TextField, Button, Divider, FormGroup, Box, InputLabel, Select, MenuItem, Avatar, Typography, FormHelperText } from '@mui/material'
 import React, {useState} from 'react'
 import theme from '../theme'
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { Form, Link } from 'react-router-dom'
 import {useMediaQuery} from '@mui/material'
 import Login from './Login'
@@ -9,6 +9,11 @@ import validator from 'validator'
 import Axios from '../helpers/Axios'
 import { checkAuthUser } from '../hooks/checkAuthUser'
 import { Navigate } from 'react-router'
+import { returnImageFromPath } from './PlayVideo'
+import { useDispatch } from 'react-redux'
+import { login } from '../features/user/userSlice'
+import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
 export const avatarPaths = [
   'src/assets/images/alien.png',
@@ -37,7 +42,7 @@ export const avatarPaths = [
 
 
 export default function GetUserInfo() {
-    const {pathname} = useLocation()
+    const navigate = useNavigate()
     const {checkIfCookieExists, loginUser} = checkAuthUser()
     const landcape = useMediaQuery('(orientation : landscape)')
     const isMedium = useMediaQuery('(max-width: 950px)')
@@ -54,9 +59,9 @@ export default function GetUserInfo() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [avatar, setAvatar] = useState('')
+    const dispatch = useDispatch()
     if(checkIfCookieExists()){
       return <Navigate to='/' />
-      
     }
     const handleFirstNameChange=(text)=>{
             setFirstName(text)
@@ -118,7 +123,15 @@ export default function GetUserInfo() {
         avatar: avatar
       }
       const user = await Axios.post('/signup', data)
-      console.log(user);
+      setFirstName('')
+      setLastName('')
+      setUsername('')
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+      setAvatar('')
+      Cookies.set('youtube-jwt', user.data.token)
+      navigate('/')
     }
 
   return (
@@ -163,7 +176,7 @@ export default function GetUserInfo() {
                 <TextField required value={avatar} color='secondary' select label='Select your avatar' onChange={(e)=>setAvatar(e.target.value)} sx={{m: 1, width: '50%'}} variant='filled'>
                   {avatarPaths.map((path, index)=>(
                     <MenuItem key={index} value={path}>
-                      <Avatar src={path} sx={{width: 50, height: 50}} />
+                      <Avatar src={returnImageFromPath(path)} sx={{width: 50, height: 50}} />
                     </MenuItem>
                   ))}
                 </TextField>

@@ -9,7 +9,7 @@ import { setVideos } from '../features/video/videoSlice';
 import { useNavigate } from 'react-router';
 import youtubeCategories from '../helpers/categories';
 import { Link, NavLink } from 'react-router-dom';
-import { logout } from '../features/user/userSlice';
+import { login, logout } from '../features/user/userSlice';
 import { useLocation } from 'react-router';
 import Axios from '../helpers/Axios';
 import Cookies from 'js-cookie';
@@ -18,6 +18,7 @@ import CursorSvg from './CursorSvg';
 import { checkAuthUser } from '../hooks/checkAuthUser';
 import { Navigate } from 'react-router';
 import BlueZack from './BlueZack';
+import { returnImageFromPath } from './PlayVideo';
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
@@ -58,6 +59,9 @@ export default function Navbar() {
     const [prompt, setPrompt] = useState('')
     const [answer, setAnswer] = useState('')
     const [completedTyping, setCompletedTyping] = useState(true)
+    useEffect(()=>{
+        !user && loginUser()
+    }, [user])
     
     async function run(e, t){
         e.preventDefault()
@@ -220,7 +224,7 @@ export default function Navbar() {
             {user && 
             <Box sx={{display: 'flex'}}>
              <IconButton aria-controls='menu' aria-haspopup='true' edge='end' sx={{ml: 2}} onClick={(e)=>setAnchorEl(e.currentTarget)}>
-                <Avatar src={user?.avatar} />
+                <Avatar src={returnImageFromPath(user?.avatar)} />
              </IconButton>
                 
              <Menu2 sx={{mt: 7}} transformOrigin={{vertical: 'top', horizontal: 'right'}} anchorOrigin={{vertical: 'top', horizontal: 'right'}} id='menu'  open={Boolean(anchorEl)} onClose={()=>setAnchorEl(null)} keepMounted anchorEl={anchorEl}>
@@ -258,7 +262,7 @@ export default function Navbar() {
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '110%', marginLeft: '-10px'}}>
                 <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 20}}>
                     <BlueZack/>
-                    <Typography className='bluezack' variant='h4'>BlueZack</Typography>
+                    <Typography sx={{color: theme.palette.success.main}} className='bluezack' variant='h4'>BLUEZACK</Typography>
                 </div>
                {list.map(item=>(
                 

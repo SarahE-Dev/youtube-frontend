@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const Axios = axios.create({
-    baseURL: "http://localhost:3000/api/users",
+    baseURL: "https://bluezack.adaptable.app/api/users",
     withCredentials: true
 });
 

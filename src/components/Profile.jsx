@@ -13,6 +13,7 @@ import { toast } from 'react-toastify'
 import { checkAuthUser } from '../hooks/checkAuthUser'
 import { Navigate } from 'react-router'
 import { avatarPaths } from './GetUserInfo'
+import { returnImageFromPath } from './PlayVideo'
 
 
 export default function Profile() {
@@ -139,7 +140,7 @@ export default function Profile() {
                 <TextField value={avatar} color='secondary' select label='Select your avatar' onChange={(e)=>setAvatar(e.target.value)} sx={{m: 1, width: '50%'}} variant='filled'>
                   {avatarPaths.map((path, index)=>{
                     return <MenuItem key={index} value={path}>
-                      <Avatar src={path} sx
+                      <Avatar src={returnImageFromPath(path)} sx
                       ={{width: 50, height: 50}} />
                     </MenuItem>
                   })}

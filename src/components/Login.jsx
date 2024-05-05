@@ -1,6 +1,6 @@
 import React from 'react'
 import { Container, Stack, TextField, Button, Divider, Typography, Avatar } from '@mui/material'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '@mui/material'
 import { useState } from 'react'
 import validator from 'validator'
@@ -11,6 +11,10 @@ import { login } from '../features/user/userSlice'
 import theme from '../theme'
 import { checkAuthUser } from '../hooks/checkAuthUser'
 import BlueZack from './BlueZack'
+import { useSelector } from 'react-redux'
+import { useEffect } from 'react'
+import Cookies from 'js-cookie'
+
 
 
 export default function Login() {
@@ -20,9 +24,9 @@ export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const {checkIfCookieExists, loginUser} = checkAuthUser()
+    const navigate = useNavigate()
     if(checkIfCookieExists()){
-      loginUser()
-      return <Navigate to='/' />
+        return <Navigate to='/' />
     }
     const handleSubmit =async (e) => {
         e.preventDefault()
@@ -33,16 +37,18 @@ export default function Login() {
         const user = await Axios.post('/login', data)
         setPassword('')
         setUsername('')
+        Cookies.set('youtube-jwt', user.data.token)
+        navigate('/')
     }
   return (
     <Container maxWidth='xl' sx={{height: '100vh', background: theme.palette.gradientBackground.primary, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll', pt: 2}}>
     <Container sx={{textAlign: 'center', pt: landcape && isMedium ? 10 : 5}} maxWidth='xs'>
 
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 10, marginTop: 10}}><BlueZack/>
-            <Typography className='bluezack'  variant='h4'>BlueZack</Typography>
+            <Typography className='bluezack'  variant='h4' sx={{color: theme.palette.success.main}}>BLUEZACK</Typography>
             </div>
             
-            <form onSubmit={handleSubmit} style={{}}>
+            <form onSubmit={handleSubmit}>
                 <Stack spacing={3}>
                     <TextField 
                     onChange={(e)=>setUsername(e.target.value)} 
@@ -52,11 +58,12 @@ export default function Login() {
                     <TextField 
                     onChange={(e)=>setPassword(e.target.value)}
                     required
+                    type='password'
                     variant='filled'
                     color='secondary' label='Password' />
                     <Divider />
                     <div style={{textAlign: 'center'}}>
-                    <Button sx={{width: '50%', borderRadius: 15}} type='submit' variant='outlined' >Submit</Button>
+                    <Button sx={{width: '50%', borderRadius: 15}} variant='outlined' type='submit' >Submit</Button>
                     </div>
                     <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                       <Typography>Don't have an account?</Typography>

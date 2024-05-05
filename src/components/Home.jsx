@@ -35,16 +35,13 @@ export default function Home() {
         
         const fetchVideos = async () => {
           dispatch(setVideos([]))
-          if(searchedVideos) {
-            dispatch(setVideos(searchedVideos))
-            return
-          }
             const res = await fetch(requestUrl)
             const data = await res.json()
             dispatch(setVideos(data.items))
         }
-       fetchVideos()
-        // fetchVideos()
+        fetchVideos()
+       
+       
         
     }, [])
     

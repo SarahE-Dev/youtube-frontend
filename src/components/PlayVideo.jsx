@@ -14,7 +14,7 @@ import { useDispatch } from 'react-redux'
 import { addComment, addFavorite, addHistory, addPlaylist, addVideoToPlaylist, removeFavorite } from '../features/user/userSlice'
 import Axios from '../helpers/Axios'
 import { returnVideObject } from '../helpers/videoReturn'
-import { setVideos } from '../features/video/videoSlice'
+import { setChannelImageOnVideo, setVideos } from '../features/video/videoSlice'
 import { useParams } from 'react-router'
 import {alien, alien2, bird, bobtail, bulldog, bunny, cat, cat1, eva, husky, husky2, koala, lab, othercat, owl, panda2, puppy, robotwhite, sealion, wallrus, whitecat } from '../assets'
 
@@ -31,6 +31,56 @@ const StyledRating = styled(Rating)({
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+
+export function returnImageFromPath(path){
+  switch(path){
+    case 'src/assets/images/alien.png':
+      return alien
+    case 'src/assets/images/alien2.png':
+      return alien2
+    case 'src/assets/images/bird.jpg':
+      return bird
+    case 'src/assets/images/bobtail.png':
+      return bobtail
+    case 'src/assets/images/bulldog.png':
+      return bulldog
+    case 'src/assets/images/bunny.png':
+      return bunny
+    case 'src/assets/images/cat.jpg':
+      return cat
+    case 'src/assets/images/cat1.png':
+      return cat1
+    case 'src/assets/images/eva.jpg':
+      return eva
+    case 'src/assets/images/husky.png':
+      return husky
+    case 'src/assets/images/husky2.png':
+      return husky2
+    case 'src/assets/images/koala.png':
+      return koala
+    case 'src/assets/images/lab.png':
+      return lab
+    case 'src/assets/images/othercat.png':
+      return othercat
+    case 'src/assets/images/owl.jpg':
+      return owl
+    case 'src/assets/images/panda2.png':
+      return panda2
+    case 'src/assets/images/puppy.jpg':
+      return puppy
+    case 'src/assets/images/sealion.png':
+      return sealion
+    case 'src/assets/images/wallrus.png':
+      return wallrus
+    case 'src/assets/images/whitecat.png':
+      return whitecat
+    case 'src/assets/images/robotwhite.jpg':
+      return robotwhite
+    default:
+      return alien
+  }
+
+}
 
 export default function PlayVideo({children, ...props}) {
   const location = useLocation()
@@ -60,6 +110,9 @@ export default function PlayVideo({children, ...props}) {
   const [playlistSelection, setPlaylistSelection] = useState('')
   const [commentSelectedValue, setCommentSelectedValue] = useState('')
   const [commentEditInput, setCommentEditInput] = useState('')
+  const [playlistsListed, setPlaylistsListed] = useState([])
+
+  
   
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -110,7 +163,7 @@ export default function PlayVideo({children, ...props}) {
       setVideoToPlay(video)
       
     }
-  }, [location.state.video])
+  }, [video])
 
   useEffect(() => {
     if(videoToPlay?.videoId){
@@ -147,7 +200,9 @@ export default function PlayVideo({children, ...props}) {
   
   useEffect(() => {
     if(videos.length === 0){
-      videos = localStorage.getItem('searchedVideos', JSON.stringify([video]))
+      dispatch(setVideos(testVideos))
+      
+    
     }
     
     
@@ -210,13 +265,6 @@ export default function PlayVideo({children, ...props}) {
     setShowEditInput(false)
     setOpenCommentDialog(false)
   }
-
-
-  async function getVideoDetails(videoId){
-    const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`)
-    const data = await response.json()
-    console.log(data);
-  }
   
   return (
     <Container sx={{background: theme.palette.gradientBackground.primary, height: '110vh', paddingTop: '90px', paddingBottom: 3, overflow: 'scroll'}} maxWidth='xl'>
@@ -227,9 +275,9 @@ export default function PlayVideo({children, ...props}) {
       <Dialog PaperProps={{component: 'form', sx: {padding: '0px 20px'}}} TransitionComponent={Transition} open={playlistAddOpen} onClose={()=>setPlaylistAddOpen(false)} sx={{textAlign: 'center'}}>
                 <DialogTitle>Add to Playlist</DialogTitle>
                 <DialogContentText>
-                <form style={{display: 'flex', flexDirection: 'column'}} onSubmit={addNewPlaylist}>
+                <form style={{display: 'flex', flexDirection: 'column'}} >
                     <TextField value={playlistInput} onChange={(e)=>setPlaylistInput(e.target.value)} label='Playlist Name' />
-                    <Button type='submit'>Add</Button>
+                    <Button onClick={addNewPlaylist}>Add</Button>
                   </form>
                   <form>
                     <FormControl fullWidth>
@@ -291,7 +339,7 @@ export default function PlayVideo({children, ...props}) {
                     
                   <ListItem onClick={()=>{item.user._id === user._id ? setOpenCommentDialog(true) : ''; setCommentSelected(item._id); setCommentSelectedValue(item.content)}} key={i}>
                     <ListItemAvatar>
-                      <Avatar src={item?.user?.avatar.split('src')[1]} alt={item?.user?.username} />
+                      <Avatar src={returnImageFromPath(item?.user?.avatar)} alt={item?.user?.username} />
                     </ListItemAvatar>
                     <ListItemText primary={item?.content} />
                     <ListItemSecondaryAction>
