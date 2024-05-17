@@ -31,7 +31,7 @@ const userSlice = createSlice({
             state.user.watchLater = state.user.watchLater.filter(video => video !== action.payload)
         },
         addHistory: (state, action) => {
-            state.user.history.push(action.payload)
+            state.user.history = [...state.user.history.filter(video => video.videoId !== action.payload.videoId), action.payload]
         },
         removeHistory: (state, action) => {
             state.user.history = state.user.history.filter(video => video !== action.payload)
@@ -56,10 +56,13 @@ const userSlice = createSlice({
         },
         addComment: (state, action) => {
             state.user.comments.push(action.payload)
-        }
+        },
+        clearHistory: (state) => {
+            state.user.history = []
+        },
 
     },
     });
 
-export const { login, logout, addHistory, addFavorite, addPlaylist, addVideoToPlaylist, addWatchLater, removeFavorite, removeHistory, removePlaylist, removeVideoFromPlaylist, removeWatchLater, addComment } = userSlice.actions;
+export const { login, logout, addHistory, addFavorite, addPlaylist, addVideoToPlaylist, addWatchLater, removeFavorite, removeHistory, removePlaylist, removeVideoFromPlaylist, removeWatchLater, addComment, clearHistory } = userSlice.actions;
 export default userSlice.reducer;

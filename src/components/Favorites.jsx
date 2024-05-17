@@ -2,11 +2,12 @@ import React from 'react'
 import { Avatar, Container, ImageList, ImageListItem, ImageListItemBar, useMediaQuery } from '@mui/material'
 import theme from '../theme'
 import { useSelector } from 'react-redux'
-import { DeleteForever, DeleteOutline, DeleteOutlineTwoTone } from '@mui/icons-material'
+import { DeleteOutlineTwoTone } from '@mui/icons-material'
 import Axios from '../helpers/Axios'
 import { useDispatch } from 'react-redux'
 import { removeFavorite } from '../features/user/userSlice'
 import { Link } from 'react-router-dom'
+import { decodeHTML } from '../helpers/helper'
 
 export default function Favorites() {
   const dispatch = useDispatch()
@@ -38,7 +39,7 @@ export default function Favorites() {
                 borderTopRightRadius: 15, borderTopLeftRadius: 15
             }} />
             <Link state={{video: video, channelImage: video.channelImage, favorites: user?.favorites}} to={`/videos/${video.videoId}`}>
-            <ImageListItemBar position='bottom'  sx={{borderBottomRightRadius: 15, borderBottomLeftRadius: 15}} title={video.title} subtitle={video.channelTitle} actionIcon={<Avatar  src={video.channelImage} />} />
+            <ImageListItemBar position='bottom'  sx={{borderBottomRightRadius: 15, borderBottomLeftRadius: 15}} title={decodeHTML(video.title)} subtitle={video.channelTitle} actionIcon={<Avatar  src={video.channelImage} />} />
             </Link>
           </ImageListItem>
           

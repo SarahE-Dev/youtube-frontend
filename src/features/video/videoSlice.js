@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { act } from "react";
 
 export const getChannelImage = async (channelID) => {
     try {
@@ -26,10 +27,12 @@ const videoSlice = createSlice({
     name: "videos",
     initialState: {
         videos: [],
+        searched: false
     },
     reducers: {
         setVideos: (state, action) => {
-            state.videos = action.payload;
+            state.videos.length = 0;
+            state.videos = action.payload
         },
         setChannelImageOnVideo: (state, action) => {
             const { video, channelImage } = action.payload;
@@ -43,9 +46,12 @@ const videoSlice = createSlice({
             })
             state.videos = updatedVideos;
 
+        },
+        setSearched: (state, action) => {
+            state.searched = action.payload
         }
     },
 });
 
-export const { setVideos, setChannelImageOnVideo} = videoSlice.actions;
+export const { setVideos, setChannelImageOnVideo, setSearched} = videoSlice.actions;
 export default videoSlice.reducer;

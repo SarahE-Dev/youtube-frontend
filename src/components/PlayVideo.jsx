@@ -143,14 +143,6 @@ export default function PlayVideo({children, ...props}) {
     !user ? handleClickOpen() : setPlaylistAddOpen(true)
 
   }
-
-  const addVideoToPlaylistFunction = async () => {
-    const response = await Axios.post('/add-to-playlist', videoToPlay)
-    console.log(response);
-    let playlistId = response.data.playlist._id
-    let video = response.data.video
-    dispatch(addVideoToPlaylist({playlistId, video}))
-  }
   
 
   useEffect(() => {
@@ -204,8 +196,6 @@ export default function PlayVideo({children, ...props}) {
       
     
     }
-    
-    
   }, [])
 
   
@@ -236,17 +226,18 @@ export default function PlayVideo({children, ...props}) {
       if(video?.videoId){
           videoObject = video
       }else{
-        videoObject = returnVideObject(video, user._id, video?.channelImage || location.state.channelImage) 
+        videoObject = returnVideObject(video, user._id, video?.channelImage) 
         async function addToHistory(){
           const history = await Axios.post('/add-to-history', videoObject)
           dispatch(addHistory(history.data.video))
           console.log(history); 
         }
+        
         addToHistory()
       
       }
     
-      location.state.history ? setHistory(location.state.history) : videos = videos
+      location.state.history ? setVideos(location.state.history) : videos = videos
   }
   
   
@@ -368,6 +359,7 @@ export default function PlayVideo({children, ...props}) {
         {useMediaQuery(theme.breakpoints.up('sm')) ? null : (
           <ImageList cols={1} sx={{overflowY: 'scroll', height: '200vh'}}>
           {videos?.map((item, i)=>(
+            item === null ||
             item?.id?.kind === 'youtube#channel' || item?.id?.kind === 'youtube#playlist' ? null:
             <Link state={{video: item, channelImage: item.channelImage}} to={`/videos/${item.id.videoId ? item.id.videoId : item.id}`}>
             <ImageListItem sx={{width: '100%', mb: 1, ml: -.26}} key={item.snippet.title}>
@@ -383,7 +375,7 @@ export default function PlayVideo({children, ...props}) {
             </Link>
           ))  
           }
-          {history?.map((item, i)=>(
+          {/* {history?.map((item, i)=>(
             
             <Link state={{video: item, channelImage: item.channelImage}} to={`/videos/${item.videoId ? item.videoId : item.id}`}>
             <ImageListItem sx={{width: '100%', mb: 1, ml: -.26}} key={item.title}>
@@ -398,7 +390,7 @@ export default function PlayVideo({children, ...props}) {
             </ImageListItem>
             </Link>
           ))  
-          }
+          } */}
         </ImageList>
         )}
       </div>
@@ -415,8 +407,9 @@ export default function PlayVideo({children, ...props}) {
       </div>
       <ImageList cols={useMediaQuery(theme.breakpoints.up('lg')) ? 2 : 1} sx={{overflowY: 'scroll', height: '100vh', mr: -2, display: useMediaQuery(theme.breakpoints.down('sm')) ? 'none' : '', ml: .75}}>
           {videos?.map((item, i)=>(
+            item === null ||
             item?.id?.kind === 'youtube#channel' || item?.id?.kind==='youtube#playlist' ? null:
-            <Link state={{video: item, channelImage: channelImage}} to={`/videos/${item.id.videoId ? item.id.videoId : item.id}`}>
+            <Link state={{video: item, channelImage: channelImage}} to={`/videos/${item?.id?.videoId ? item?.id?.videoId : item?.id}`}>
             <ImageListItem sx={{width: '90%', mb: 1, ml: 1}} key={item.snippet.title}>
               <img src={item.snippet.thumbnails.medium.url} alt={item.snippet.title} />
               <ImageListItemBar
@@ -431,7 +424,7 @@ export default function PlayVideo({children, ...props}) {
             </Link>
           ))  
           }
-          {history?.map((item, i)=>(
+          {/* {history?.map((item, i)=>(
             <Link state={{video: item, channelImage: channelImage}} to={`/videos/${item.videoId}`}>
             <ImageListItem sx={{width: '90%', mb: 1, ml: 1}} key={item.title}>
               <img src={item.thumbnailUrl} alt={item.title} />
@@ -446,7 +439,7 @@ export default function PlayVideo({children, ...props}) {
             </ImageListItem>
             </Link>
           ))  
-          }
+          } */}
         </ImageList>
         </div>
     </Container>

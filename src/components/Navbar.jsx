@@ -5,7 +5,7 @@ import { AccountCircleOutlined, AndroidSharp, Favorite, History, Home, Login, Lo
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
 import jsonpAdapter from 'axios-jsonp'
-import { setVideos } from '../features/video/videoSlice';
+import { setSearched, setVideos } from '../features/video/videoSlice';
 import { useNavigate } from 'react-router';
 import youtubeCategories from '../helpers/categories';
 import { Link, NavLink } from 'react-router-dom';
@@ -19,6 +19,7 @@ import { checkAuthUser } from '../hooks/checkAuthUser';
 import { Navigate } from 'react-router';
 import BlueZack from './BlueZack';
 import { returnImageFromPath } from './PlayVideo';
+import getChannelAvatar from '../helpers/getAvatar';
 
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
@@ -27,7 +28,6 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
 const model = genAI.getGenerativeModel({model: 'gemini-pro'})
 
 const list = [
-    {text: 'Home', icon: <Home/>},
     {text: 'Favorites', icon: <Favorite/>},
     {text: 'History', icon: <History/>},
     {text: 'Playlists', icon: <PlaylistPlaySharp/>}
@@ -136,7 +136,7 @@ export default function Navbar() {
 
     const handleSearchSubmit = async(e)=>{
         e.preventDefault()
-        
+        console.log('hj');
         try {
             const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
                 params: {
@@ -147,12 +147,23 @@ export default function Navbar() {
                 }
             })
             
-            console.log(response.data.items);
-            localStorage.setItem('searchedVideos', JSON.stringify(response.data.items))
-            dispatch(setVideos(response.data.items))
+            let responseArray = response.data.items;
+            console.log(responseArray);
+            let promiseArray = responseArray.map(async item=>{
+                if(item.id.kind === 'youtube#channel' || item.id.kind === 'youtube#playlist') return null
+                const channelID = item.snippet.channelId
+                const channelImage = await getChannelAvatar(channelID)
+                return {...item, channelImage}
+            })
+            const videoWithImages = await Promise.all(promiseArray)
+            console.log(videoWithImages);
+            localStorage.setItem('searchedVideos', JSON.stringify(videoWithImages))
+            dispatch(setSearched(true))
+            dispatch(setVideos(videoWithImages))
             navigate('/')
             setSearchInput('')
             setOptions([])
+            
         
         } catch (error) {
             console.log(error);
@@ -260,9 +271,11 @@ export default function Navbar() {
     }} variant='temporary' anchor='left' open={isDrawerOpen} onClose={()=>setIsDrawerOpen(false)}>
         <Container
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '110%', marginLeft: '-10px'}}>
-                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 20}}>
+                <div style={{ marginTop: 20}}>
+                    <Link style={{textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center'}} to='/'>
                     <BlueZack/>
                     <Typography sx={{color: theme.palette.success.main}} className='bluezack' variant='h4'>BLUEZACK</Typography>
+                    </Link>
                 </div>
                {list.map(item=>(
                 

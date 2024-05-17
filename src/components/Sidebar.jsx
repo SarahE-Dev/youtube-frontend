@@ -115,13 +115,13 @@ export default function Sidebar() {
             <Container 
              style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '110%', marginLeft: '-10px'}}>
                {list.map(item=>(
-                <>
+              
                    <Button startIcon={item.icon} onClick={user ? null : handleClickOpen}
                     component={user ? NavLink : Button}  key={item.text} to={`/${ item.text=== 'Home' ?'' : item.text.toLowerCase()}`} 
                    sx={{ mt: 2, borderRadius: 10, fontSize: '0.7rem', textAlign: 'center', display: "flex"}}
                    variant='outlined' color='primary'>{item.text}</Button>
                    
-                        </>
+                        
                ))} 
                <div style={{display: 'flex', justifyContent: 'center'}}>
                <Fab onClick={()=>{setBottomDrawerOpen(true); run('Say hello')}} sx={{mt: 2, width: '50%', borderRadius: 15}} variant='outlined' color='primary'><BlueZack /></Fab>

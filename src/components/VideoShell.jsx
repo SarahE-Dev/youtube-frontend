@@ -14,7 +14,6 @@ export default function VideoShell({children}) {
     const categoryID = useParams().categoryID
     const categoryTitle = useParams().categoryTitle
     const videos = useSelector(state=>state.videos.videos)
-    // const [videos, setVideos] = useState([])
     const dispatch = useDispatch()
     useEffect(() => {
         const fetchData = async () => {
@@ -28,7 +27,14 @@ export default function VideoShell({children}) {
                         key: import.meta.env.VITE_YOUTUBE_API_KEY
                     }
                 });
-                dispatch(setVideos(response.data.items)) 
+                const promiseArray = response.data.items.map(async (video) => {
+                    if(video.id.kind === 'youtube#channel' || video.id.kind === 'youtube#playlist') return null
+                    const channelID = video.snippet.channelId
+                    const channelImage = await getChannelAvatar(channelID)
+                    return {...video, channelImage}
+                })
+                const videosUpdated = await Promise.all(promiseArray)
+                dispatch(setVideos(videosUpdated))
 
 
             } catch (error) {
@@ -43,7 +49,7 @@ export default function VideoShell({children}) {
         <Typography component='h1' p={1} textAlign='center'>{categoryTitle.split('-').join(' & ')}</Typography>
         <Grid alignItems='center' spacing={{xs: 4, sm: 4, md: 5, lg: 6}} wrap='wrap' container>
             {videos?.map(video=>(
-                
+                video === null ||
                 video.id.kind === 'youtube#channel' || video.id.kind === 'youtube#playlist' ? null :
                 <Video key={video.snippet.title} video={video} />
 
