@@ -10,7 +10,7 @@ import History from "./components/History";
 import GetUserInfo from "./components/GetUserInfo";
 import Profile from "./components/Profile";
 import Login from "./components/Login";
-import Channel from "./components/Channel";
+
 
 const Router = createBrowserRouter(
     [
