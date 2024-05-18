@@ -39,7 +39,7 @@ export default function Login() {
         setUsername('')
         Cookies.set('youtube-jwt', user.data.token)
         loginUser()
-        navigate('/')
+        window.history.back()
     }
   return (
     <Container maxWidth='xl' sx={{height: '100vh', background: theme.palette.gradientBackground.primary, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll', pt: 2}}>

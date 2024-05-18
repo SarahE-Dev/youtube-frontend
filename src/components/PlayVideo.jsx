@@ -211,7 +211,7 @@ export default function PlayVideo({children, ...props}) {
 
   const handleAddVideoToPlaylist=async(e)=>{
     e.preventDefault()
-    const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, ...videoToPlay})
+    const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, videoToPlay})
     console.log(response);
     setPlaylistAddOpen(false)
     dispatch(addVideoToPlaylist({playlistId: playlistSelection, video: videoToPlay}))
@@ -247,6 +247,10 @@ export default function PlayVideo({children, ...props}) {
     const deleteComment = await Axios.post('/delete-comment', {user: user._id, comment: commentSelected})
     console.log(deleteComment);
     getVideoComments()
+  }
+
+  const encodeChannelTitle=(title)=>{
+    return title.split(' ').join('-')
   }
 
   const editCommentFunc=async(id)=>{
@@ -294,6 +298,7 @@ export default function PlayVideo({children, ...props}) {
           <AccordionSummary  >
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
           <div style={{display: 'flex', alignItems: 'center',}}>
+            
         <Avatar sx={{width: smallForImage ? 40 : 50, height: smallForImage ? 40 : 50, m: 2}} alt={videoToPlay?.channelTitle} src={videoToPlay?.channelImage}  />
       <Typography variant='p'>{videoToPlay?.channelTitle}</Typography>
       </div>
