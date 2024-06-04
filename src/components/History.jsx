@@ -28,9 +28,9 @@ export default function History() {
       <Button onClick={clearHistoryFunc} variant='contained' color='primary' sx={{margin: 2}}>Clear History</Button>
       
       <ImageList cols={isSmallScreen ? 1 : isMediumScreen ? 2 : isLargeScreen ? 3 : 4} gap={15}>
-        {user?.history?.toReversed().map(video=>(
-          <Link to={`/videos/${video.videoId}`} state={{video: video, channelImage: video.channelImage, history: user.history.toReversed()}} >
-          <ImageListItem key={video.videoId} >
+        {user?.history?.toReversed().map((video, i)=>(
+          <Link key={video.videoId + i} to={`/videos/${video.videoId + i}`} state={{video: video, channelImage: video.channelImage, history: user.history.toReversed()}} >
+          <ImageListItem key={video.title} >
             <img style={{borderRadius: 15}} src={video.thumbnailUrl}  />
             <ImageListItemBar sx={{borderBottomLeftRadius: 15, borderBottomRightRadius: 15}} actionIcon={<Avatar src={video.channelImage} />} title={video.title} subtitle={video.channelTitle} />
           </ImageListItem>
