@@ -31,7 +31,7 @@ export default function Playlists() {
   return (
     <Container sx={{background: theme.palette.gradientBackground.primary, height: '100vh', paddingTop: '90px',overflow: 'scroll', paddingBottom: 3}} maxWidth={false}>
         {user?.playlists?.map(playlist=>(
-            <Accordion sx={{background: theme.palette.navBackground.primary}} key={playlist._id}>
+            <Accordion defaultExpanded sx={{background: theme.palette.navBackground.primary}} key={playlist._id}>
               <AccordionSummary >
                 <div style={{display: 'flex' ,justifyContent: 'space-between', width: '100%'}}>
                   <h3>{playlist.name}</h3>
