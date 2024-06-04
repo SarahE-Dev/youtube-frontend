@@ -41,7 +41,6 @@ export default function VideoShell({children}) {
                 console.log(error); 
             } 
         };
-        console.log(window.history);
         dispatch(setVideos([]))
         fetchData();
     }, [categoryID])

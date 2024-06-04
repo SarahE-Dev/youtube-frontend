@@ -211,7 +211,7 @@ export default function PlayVideo({children, ...props}) {
 
   const handleAddVideoToPlaylist=async(e)=>{
     e.preventDefault()
-    const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, videoToPlay})
+    const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, channelImage: videoToPlay.channelImage, channelId: videoToPlay.channelId, videoId: videoToPlay.videoId, title: videoToPlay.title, description: videoToPlay.description, thumbnailUrl: videoToPlay.thumbnailUrl, channelTitle: videoToPlay.channelTitle, publishedAt: videoToPlay.publishedAt, duration: videoToPlay.duration, viewCount: videoToPlay.viewCount, likeCount: videoToPlay.likeCount, dislikeCount: videoToPlay.dislikeCount, commentCount: videoToPlay.commentCount, favoriteCount: videoToPlay.favoriteCount, user: user._id, avatar: user.avatar})
     console.log(response);
     setPlaylistAddOpen(false)
     dispatch(addVideoToPlaylist({playlistId: playlistSelection, video: videoToPlay}))
@@ -380,22 +380,6 @@ export default function PlayVideo({children, ...props}) {
             </Link>
           ))  
           }
-          {/* {history?.map((item, i)=>(
-            
-            <Link state={{video: item, channelImage: item.channelImage}} to={`/videos/${item.videoId ? item.videoId : item.id}`}>
-            <ImageListItem sx={{width: '100%', mb: 1, ml: -.26}} key={item.title}>
-              <img src={item.thumbnailUrl} alt={item.title} />
-              <ImageListItemBar
-                width='100%'
-                subtitle={decodeHTML(item.title)}
-                actionIcon={
-                  <Avatar sx={{width: 30, height: 30, mr: 1}} src={item.channelImage} alt={item.channelTitle} />
-                }
-              />
-            </ImageListItem>
-            </Link>
-          ))  
-          } */}
         </ImageList>
         )}
       </div>
@@ -429,22 +413,7 @@ export default function PlayVideo({children, ...props}) {
             </Link>
           ))  
           }
-          {/* {history?.map((item, i)=>(
-            <Link state={{video: item, channelImage: channelImage}} to={`/videos/${item.videoId}`}>
-            <ImageListItem sx={{width: '90%', mb: 1, ml: 1}} key={item.title}>
-              <img src={item.thumbnailUrl} alt={item.title} />
-              <ImageListItemBar
-                width='100%'
-                subtitle={decodeHTML(item.title)}
-                actionIcon={
-                  <Avatar sx={{width: 30, height: 30}} src={item.channelImage} alt={item.channelTitle} />
-                }
-                
-              />
-            </ImageListItem>
-            </Link>
-          ))  
-          } */}
+          
         </ImageList>
         </div>
     </Container>
