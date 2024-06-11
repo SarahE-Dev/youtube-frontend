@@ -66,6 +66,9 @@ export default function Profile() {
       if(firstName !== user?.firstName){
         objectToSend.firstName = firstName
       }
+      if(avatar !== user?.avatar){
+        objectToSend.avatar = avatar
+      }
       if(Object.keys(objectToSend).length === 0){
         setIsEditable(false)
         return
@@ -137,7 +140,7 @@ export default function Profile() {
               
               <div style={{display: 'flex', justifyContent: 'center', margin: 7}}>
       
-                <TextField value={avatar} color='secondary' select label='Select your avatar' onChange={(e)=>setAvatar(e.target.value)} sx={{m: 1, width: '50%'}} variant='filled'>
+                <TextField value={avatar} color='secondary' select label='Select your avatar' onChange={(e)=>{setAvatar(e.target.value)}} sx={{m: 1, width: '50%'}} variant='filled'>
                   {avatarPaths.map((path, index)=>{
                     return <MenuItem key={index} value={path}>
                       <Avatar src={returnImageFromPath(path)} sx
@@ -162,7 +165,7 @@ export default function Profile() {
 
     {!isEditable &&
     <Container sx={{textAlign: 'center', paddingTop: landscape && isMedium ? 25 : 10, display: 'flex', flexDirection: 'column'}} >
-      <Avatar sx={{width: 100, height: 100, m: 2}} src={user?.avatar} />
+      <Avatar sx={{width: 100, height: 100, m: 2}} src={returnImageFromPath(user?.avatar)} />
       <Typography variant='h4'>{user?.firstName} {user?.lastName}</Typography>
       <Typography variant='h6'>{user?.username}</Typography>
       <Typography variant='h6'>{user?.email}</Typography>

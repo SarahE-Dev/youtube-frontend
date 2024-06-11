@@ -211,7 +211,7 @@ export default function PlayVideo({children, ...props}) {
 
   const handleAddVideoToPlaylist=async(e)=>{
     e.preventDefault()
-    const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, channelImage: videoToPlay.channelImage, channelId: videoToPlay.channelId, videoId: videoToPlay.videoId, title: videoToPlay.title, description: videoToPlay.description, thumbnailUrl: videoToPlay.thumbnailUrl, channelTitle: videoToPlay.channelTitle, publishedAt: videoToPlay.publishedAt, duration: videoToPlay.duration, viewCount: videoToPlay.viewCount, likeCount: videoToPlay.likeCount, dislikeCount: videoToPlay.dislikeCount, commentCount: videoToPlay.commentCount, favoriteCount: videoToPlay.favoriteCount, user: user._id, avatar: user.avatar})
+    const response = await Axios.post('/add-video-to-playlist', {playlist: playlistSelection, user: user._id, channelImage: videoToPlay.channelImage, channelId: videoToPlay.channelId, videoId: videoToPlay.videoId, title: videoToPlay.title, description: videoToPlay.description, thumbnailUrl: videoToPlay.thumbnailUrl, channelTitle: videoToPlay.channelTitle, publishedAt: videoToPlay.publishedAt, duration: videoToPlay.duration, viewCount: videoToPlay.viewCount, likeCount: videoToPlay.likeCount, dislikeCount: videoToPlay.dislikeCount, commentCount: videoToPlay.commentCount, favoriteCount: videoToPlay.favoriteCount, avatar: user.avatar})
     console.log(response);
     setPlaylistAddOpen(false)
     dispatch(addVideoToPlaylist({playlistId: playlistSelection, video: videoToPlay}))

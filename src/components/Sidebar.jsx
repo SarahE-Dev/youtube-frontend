@@ -39,7 +39,6 @@ export default function Sidebar() {
     const [completedTyping, setCompletedTyping] = useState(true)
     async function run(e, t){
       e.preventDefault()
-      
       const chat = await model.startChat({prompt: 'be a friedly chat bot on a youtube app, your name is BlueZack'})
       const res = await chat.sendMessage(prompt)
       setPrompt('')
@@ -124,7 +123,7 @@ export default function Sidebar() {
                         
                ))} 
                <div style={{display: 'flex', justifyContent: 'center'}}>
-               <Fab onClick={()=>{setBottomDrawerOpen(true); run('Say hello')}} sx={{mt: 2, width: '50%', borderRadius: 15}} variant='outlined' color='primary'><BlueZack /></Fab>
+               <Fab onClick={()=>{setBottomDrawerOpen(true);}} sx={{mt: 2, width: '50%', borderRadius: 15}} variant='outlined' color='primary'><BlueZack /></Fab>
                </div>
                
             {youtubeCategories.map(category=>{
